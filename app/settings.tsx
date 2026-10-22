@@ -1,5 +1,5 @@
 import { Link } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Pressable,
   SafeAreaView,
@@ -12,29 +12,56 @@ import {
 } from 'react-native';
 import { CATEGORY_OPTIONS } from '@/src/data/feedData';
 import type { CategoryId } from '@/src/domain/types';
+import {
+  appSettings,
+  DEFAULT_CATEGORY_STATE,
+  hydrateSettings,
+  loadEnabledCategories,
+  resolveTheme,
+  setEnabledCategories as persistEnabledCategories,
+  setRefreshInterval,
+  setTheme,
+  type AppTheme,
+} from '@/src/state/appSettings';
 
-const DEFAULT_CATEGORY_STATE: Record<CategoryId, boolean> = {
-  'top-stories': true,
-  local: true,
-  district: true,
-  national: true,
-  world: true,
-  markets: true,
-  business: true,
-  technology: true,
-  science: true,
-  'health-medical': true,
-  politics: true,
-  sports: true,
-  entertainment: true,
-  lifestyle: true,
-  'viral-trending': true,
-};
+const refreshOptions = [5, 10, 15, 30, 60];
+const themeOptions: AppTheme[] = ['system', 'light', 'dark'];
 
 export default function SettingsScreen() {
   const [enabledCategories, setEnabledCategories] = useState<Record<CategoryId, boolean>>(
-    DEFAULT_CATEGORY_STATE,
+    loadEnabledCategories(),
   );
+  const [refreshInterval, setLocalRefreshInterval] = useState<number>(appSettings.refreshIntervalMinutes);
+  const [theme, setLocalTheme] = useState<AppTheme>(appSettings.theme);
+
+  useEffect(() => {
+    void hydrateSettings().then(() => {
+      setEnabledCategories(loadEnabledCategories());
+      setLocalRefreshInterval(appSettings.refreshIntervalMinutes);
+      setLocalTheme(appSettings.theme);
+    });
+  }, []);
+
+  const themeMode = resolveTheme();
+  const palette = themeMode === 'dark'
+    ? {
+        background: '#020817',
+        surface: '#0f172a',
+        soft: '#111827',
+        title: '#f8fafc',
+        body: '#cbd5e1',
+        muted: '#94a3b8',
+        accent: '#f59e0b',
+      }
+    : {
+        background: '#f8fafc',
+        surface: '#ffffff',
+        soft: '#e2e8f0',
+        title: '#0f172a',
+        body: '#334155',
+        muted: '#64748b',
+        accent: '#f59e0b',
+      };
 
   const categoriesCount = useMemo(
     () => Object.values(enabledCategories).filter(Boolean).length,
@@ -42,33 +69,49 @@ export default function SettingsScreen() {
   );
 
   const toggleCategory = (categoryId: CategoryId) => {
-    setEnabledCategories((current) => ({
-      ...current,
-      [categoryId]: !current[categoryId],
-    }));
+    setEnabledCategories((current) => {
+      const next = {
+        ...current,
+        [categoryId]: !current[categoryId],
+      };
+      persistEnabledCategories(next);
+      return next;
+    });
   };
 
   const enableAll = () => {
-    setEnabledCategories(DEFAULT_CATEGORY_STATE);
+    const next = { ...DEFAULT_CATEGORY_STATE };
+    setEnabledCategories(next);
+    persistEnabledCategories(next);
+  };
+
+  const applyRefresh = (minutes: number) => {
+    setLocalRefreshInterval(minutes);
+    setRefreshInterval(minutes);
+  };
+
+  const applyTheme = (nextTheme: AppTheme) => {
+    setLocalTheme(nextTheme);
+    setTheme(nextTheme);
   };
 
   return (
-    <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="light-content" />
-      <ScrollView contentContainerStyle={styles.content}>
+    <SafeAreaView style={[styles.screen, { backgroundColor: palette.background }]}>
+      <StatusBar barStyle={themeMode === 'dark' ? 'light-content' : 'dark-content'} />
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.topBar}>
-          <Text style={styles.title}>Settings</Text>
+          <Text style={[styles.title, { color: palette.title }]}>Settings</Text>
           <Link href="/" asChild>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close settings" style={styles.closeButton}>
-              <Text style={styles.closeText}>Done</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close settings" style={[styles.closeButton, { backgroundColor: palette.soft }]}>
+              <Text style={[styles.closeText, { color: palette.title }]}>Done</Text>
             </Pressable>
           </Link>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Categories</Text>
-          <Text style={styles.sectionHint}>{categoriesCount} active</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Turn on all categories" onPress={enableAll} style={styles.primaryButton}>
+        <View style={[styles.section, { backgroundColor: palette.surface, borderColor: palette.soft }]}>
+          <Text style={[styles.sectionTitle, { color: palette.title }]}>Categories</Text>
+          <Text style={[styles.sectionHint, { color: palette.muted }]}>{categoriesCount} active</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Turn on all categories" onPress={enableAll} style={[styles.primaryButton, { backgroundColor: palette.accent }]}>
             <Text style={styles.primaryText}>Turn all on</Text>
           </Pressable>
 
@@ -79,49 +122,73 @@ export default function SettingsScreen() {
                 accessibilityRole="switch"
                 accessibilityLabel={`${category.label} category ${enabledCategories[category.id] ? 'enabled' : 'disabled'}`}
                 onPress={() => toggleCategory(category.id)}
-                style={[styles.toggleRow, !enabledCategories[category.id] && styles.toggleRowInactive]}
+                style={[styles.toggleRow, { backgroundColor: palette.soft, borderColor: palette.soft }, !enabledCategories[category.id] && styles.toggleRowInactive]}
               >
-                <Text style={styles.toggleLabel}>{category.label}</Text>
-                <Text style={styles.switchValue}>{enabledCategories[category.id] ? 'On' : 'Off'}</Text>
+                <Text style={[styles.toggleLabel, { color: palette.title }]}>{category.label}</Text>
+                <Text style={[styles.switchValue, { color: palette.accent }]}>{enabledCategories[category.id] ? 'On' : 'Off'}</Text>
               </Pressable>
             ))}
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Location</Text>
+        <View style={[styles.section, { backgroundColor: palette.surface, borderColor: palette.soft }]}>
+          <Text style={[styles.sectionTitle, { color: palette.title }]}>Location</Text>
           <TextInput
             accessibilityLabel="City"
             value="Chennai"
             placeholder="City"
-            placeholderTextColor="#64748b"
-            style={styles.input}
+            placeholderTextColor={palette.muted}
+            style={[styles.input, { backgroundColor: palette.soft, borderColor: palette.soft, color: palette.title }]}
           />
           <TextInput
             accessibilityLabel="District"
             value="Velachery"
             placeholder="District"
-            placeholderTextColor="#64748b"
-            style={styles.input}
+            placeholderTextColor={palette.muted}
+            style={[styles.input, { backgroundColor: palette.soft, borderColor: palette.soft, color: palette.title }]}
           />
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Refresh interval</Text>
-          <Text style={styles.valueText}>30 minutes</Text>
+        <View style={[styles.section, { backgroundColor: palette.surface, borderColor: palette.soft }]}>
+          <Text style={[styles.sectionTitle, { color: palette.title }]}>Refresh interval</Text>
+          <View style={styles.optionRow}>
+            {refreshOptions.map((minutes) => (
+              <Pressable
+                key={minutes}
+                accessibilityRole="button"
+                accessibilityLabel={`Refresh every ${minutes} minutes`}
+                onPress={() => applyRefresh(minutes)}
+                style={[styles.optionButton, { backgroundColor: refreshInterval === minutes ? palette.accent : palette.soft }]}
+              >
+                <Text style={[styles.optionText, { color: refreshInterval === minutes ? '#111827' : palette.title }]}>{minutes}m</Text>
+              </Pressable>
+            ))}
+          </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Theme</Text>
-          <Text style={styles.valueText}>System</Text>
+        <View style={[styles.section, { backgroundColor: palette.surface, borderColor: palette.soft }]}>
+          <Text style={[styles.sectionTitle, { color: palette.title }]}>Theme</Text>
+          <View style={styles.optionRow}>
+            {themeOptions.map((option) => (
+              <Pressable
+                key={option}
+                accessibilityRole="button"
+                accessibilityLabel={`Set theme to ${option}`}
+                onPress={() => applyTheme(option)}
+                style={[styles.optionButton, { backgroundColor: theme === option ? palette.accent : palette.soft }]}
+              >
+                <Text style={[styles.optionText, { color: theme === option ? '#111827' : palette.title }]}>{option}</Text>
+              </Pressable>
+            ))}
+          </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About</Text>
-          <Text style={styles.valueText}>Version 0.1.0</Text>
-          <Text style={styles.valueText}>MIT license</Text>
-          <Text style={styles.valueText}>Privacy policy</Text>
-          <Text style={styles.valueText}>Publisher pages may contain ads.</Text>
+        <View style={[styles.section, { backgroundColor: palette.surface, borderColor: palette.soft }]}>
+          <Text style={[styles.sectionTitle, { color: palette.title }]}>About</Text>
+          <Text style={[styles.valueText, { color: palette.body }]}>Version 0.1.0</Text>
+          <Text style={[styles.valueText, { color: palette.body }]}>MIT license</Text>
+          <Text style={[styles.valueText, { color: palette.body }]}>Privacy policy</Text>
+          <Text style={[styles.valueText, { color: palette.body }]}>Publisher pages may contain ads.</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -131,7 +198,6 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#020817',
   },
   content: {
     paddingHorizontal: 16,
@@ -145,40 +211,32 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   title: {
-    color: '#f8fafc',
     fontSize: 28,
     fontWeight: '800',
   },
   closeButton: {
-    backgroundColor: '#111827',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   closeText: {
-    color: '#f8fafc',
     fontWeight: '700',
   },
   section: {
-    backgroundColor: '#0f172a',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#1f2937',
     padding: 16,
     marginBottom: 16,
   },
   sectionTitle: {
-    color: '#f8fafc',
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 4,
   },
   sectionHint: {
-    color: '#94a3b8',
     marginBottom: 12,
   },
   primaryButton: {
-    backgroundColor: '#f59e0b',
     borderRadius: 12,
     paddingVertical: 10,
     alignItems: 'center',
@@ -198,10 +256,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#111827',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#334155',
     paddingHorizontal: 12,
     paddingVertical: 11,
   },
@@ -209,25 +265,35 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   toggleLabel: {
-    color: '#e2e8f0',
     fontWeight: '600',
   },
   switchValue: {
-    color: '#fbbf24',
     fontWeight: '700',
   },
   input: {
-    backgroundColor: '#111827',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#334155',
-    color: '#f8fafc',
     paddingHorizontal: 12,
     paddingVertical: 12,
     marginTop: 10,
   },
+  optionRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  optionButton: {
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    minWidth: 58,
+    alignItems: 'center',
+  },
+  optionText: {
+    fontWeight: '700',
+  },
   valueText: {
-    color: '#cbd5e1',
     lineHeight: 22,
     marginTop: 6,
   },

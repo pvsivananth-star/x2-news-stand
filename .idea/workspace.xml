@@ -8,21 +8,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="26fd0106-ec00-4b3e-9f65-ce79e7e29213" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.venv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/state/appSettings.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/x2-news-stand.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/x2-news-stand.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/settings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/settings.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config/feeds.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/feeds.test.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config/feeds.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/feeds.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/domain/dedupe.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/domain/dedupe.test.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/domain/dedupe.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/domain/dedupe.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/domain/normalize.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/domain/normalize.test.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/domain/normalize.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/domain/normalize.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/domain/rank.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/domain/rank.test.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/domain/rank.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/domain/rank.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/domain/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/domain/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/NewsCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewsCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/data/feedData.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/data/feedData.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,61 +51,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="2.029579351003891E-39" />
-      <entry key="MS500" value="3.0134132814129303E-8" />
-      <entry key="S2" value="0.030516888266077874" />
-      <entry key="S5" value="0.7618604347553308" />
-      <entry key="S10" value="2.4212949563062938" />
-      <entry key="S30" value="5.35066758361192" />
-      <entry key="S60" value="6.6554945033752375" />
-      <entry key="M2" value="8.761007727396578" />
-      <entry key="M5" value="16.361096047738208" />
-      <entry key="M10" value="26.99312016057504" />
-      <entry key="M15" value="37.53485013020802" />
-      <entry key="M30" value="69.4266158403477" />
-      <entry key="H1" value="120.10069654093785" />
-      <entry key="H2" value="176.2881497041002" />
-      <entry key="H4" value="221.27608126088532" />
-      <entry key="D1" value="272.72903604398385" />
-      <entry key="W1" value="283.20099375293046" />
+      <entry key="MS100" value="1.0033177147876864" />
+      <entry key="MS500" value="2.3679953828219444" />
+      <entry key="S2" value="6.496026978660004" />
+      <entry key="S5" value="8.657764958805789" />
+      <entry key="S10" value="11.124411185436387" />
+      <entry key="S30" value="17.2731982074589" />
+      <entry key="S60" value="20.494235099152835" />
+      <entry key="M2" value="22.65438892429116" />
+      <entry key="M5" value="29.784686526578596" />
+      <entry key="M10" value="50.086697150250004" />
+      <entry key="M15" value="69.459114535555" />
+      <entry key="M30" value="116.09401239786675" />
+      <entry key="H1" value="180.38753265574135" />
+      <entry key="H2" value="250.05380585227542" />
+      <entry key="H4" value="306.49517716713956" />
+      <entry key="D1" value="372.15784249011034" />
+      <entry key="W1" value="385.6730586229045" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="1.0000000000000078" />
-      <entry key="MS500" value="1.001507109545956" />
-      <entry key="S2" value="1.197031745680141" />
-      <entry key="S5" value="1.5221730842394483" />
-      <entry key="S10" value="1.7226154469975357" />
-      <entry key="S30" value="1.897364904207561" />
-      <entry key="S60" value="1.9472934625604656" />
-      <entry key="M2" value="1.973291106135119" />
-      <entry key="M5" value="1.993551774729236" />
-      <entry key="M10" value="2.082806696735352" />
-      <entry key="M15" value="2.2778487841585244" />
-      <entry key="M30" value="3.0773307351596655" />
-      <entry key="H1" value="4.4681969128149985" />
-      <entry key="H2" value="6.021864572126045" />
-      <entry key="H4" value="7.259130097652906" />
-      <entry key="D1" value="8.66577124559436" />
-      <entry key="W1" value="8.951028093496785" />
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="3.944041876565463E-157" />
+      <entry key="S5" value="3.1989870460179543E-63" />
+      <entry key="S10" value="7.389606469836391E-32" />
+      <entry key="S30" value="6.544792241060874E-11" />
+      <entry key="S60" value="1.201749234434672E-5" />
+      <entry key="M2" value="0.0058875094070224366" />
+      <entry key="M5" value="0.2788198101225185" />
+      <entry key="M10" value="1.0646176751710206" />
+      <entry key="M15" value="1.7345757130295134" />
+      <entry key="M30" value="3.2065524250694266" />
+      <entry key="H1" value="5.117872039569858" />
+      <entry key="H2" value="7.1248402890260385" />
+      <entry key="H4" value="8.722487209299299" />
+      <entry key="D1" value="10.55954422600535" />
+      <entry key="W1" value="10.935364378231965" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="2.8633665752942673E-4" />
-      <entry key="MS500" value="0.19676430398221484" />
-      <entry key="S2" value="0.8780194273209754" />
-      <entry key="S5" value="2.1023279770049115" />
-      <entry key="S10" value="4.030638486625547" />
-      <entry key="S30" value="7.199757358975426" />
-      <entry key="S60" value="8.576678871294014" />
-      <entry key="M2" value="10.720579284688784" />
-      <entry key="M5" value="18.34833425458208" />
-      <entry key="M10" value="29.071912247282548" />
-      <entry key="M15" value="39.8094698861798" />
-      <entry key="M30" value="72.50162111896647" />
-      <entry key="H1" value="124.56724751557137" />
-      <entry key="H2" value="182.3089449099956" />
-      <entry key="H4" value="228.53458168635763" />
-      <entry key="D1" value="281.39468460906795" />
-      <entry key="W1" value="292.1520038099601" />
+      <entry key="MS100" value="0.975862873919339" />
+      <entry key="MS500" value="2.3485947638718367" />
+      <entry key="S2" value="6.479356769270741" />
+      <entry key="S5" value="8.648542221163057" />
+      <entry key="S10" value="11.118329100864216" />
+      <entry key="S30" value="17.269949204068066" />
+      <entry key="S60" value="20.49230269285651" />
+      <entry key="M2" value="22.659151802304343" />
+      <entry key="M5" value="30.0620195512748" />
+      <entry key="M10" value="51.148919287008184" />
+      <entry key="M15" value="71.19105545813693" />
+      <entry key="M30" value="119.29808830507487" />
+      <entry key="H1" value="185.5034724881891" />
+      <entry key="H2" value="257.17734293482675" />
+      <entry key="H4" value="315.21688384089924" />
+      <entry key="D1" value="382.71723245776406" />
+      <entry key="W1" value="396.60840026498886" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -123,9 +119,8 @@
         <option name="modeId" value="Agent" />
         <option name="model">
           <model>
-            <option name="modelProviderName" value="OpenAI" />
-            <option name="modelType" value="byok_id" />
-            <option name="modelValue" value="gpt-5.2-codex" />
+            <option name="modelType" value="builtin_id" />
+            <option name="modelValue" value="auto" />
           </model>
         </option>
         <option name="targetType" value="BACKGROUND" />
@@ -138,26 +133,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "copilot.chat.legacySessionMetadata.migrated": "true",
-    "git-widget-placeholder": "dev/news-stand-ui",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/paramasivamveerasivanantham/work/IntelliJ/x2/x2-news-stand",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev/news-stand-ui&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/paramasivamveerasivanantham/work/IntelliJ/x2/x2-news-stand&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

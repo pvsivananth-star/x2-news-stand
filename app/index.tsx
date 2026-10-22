@@ -1,7 +1,8 @@
 import { Link } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
+  Modal,
   Pressable,
   SafeAreaView,
   StatusBar,
@@ -9,10 +10,12 @@ import {
   Text,
   View,
 } from 'react-native';
+import WebView from 'react-native-webview';
 import { CategoryPill } from '@/src/components/CategoryPill';
 import { NewsCard } from '@/src/components/NewsCard';
-import { CATEGORY_OPTIONS, FEED_ARTICLES } from '@/src/data/feedData';
+import { CATEGORY_OPTIONS, FEED_ARTICLES, type CategoryOption } from '@/src/data/feedData';
 import type { Article, CategoryId } from '@/src/domain/types';
+import { appSettings, hydrateSettings, resolveTheme } from '@/src/state/appSettings';
 
 const DEFAULT_CATEGORY: CategoryId = 'top-stories';
 
@@ -20,10 +23,72 @@ export default function HomeScreen() {
   const [activeCategory, setActiveCategory] = useState<CategoryId>(DEFAULT_CATEGORY);
   const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
   const [items, setItems] = useState<Article[]>(FEED_ARTICLES);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<number>(Date.now());
+  const [selectedSourceUrl, setSelectedSourceUrl] = useState<string | null>(null);
+  const [settingsReady, setSettingsReady] = useState(false);
+  const categoryListRef = useRef<FlatList<CategoryOption> | null>(null);
+
+  const enabledCategories = appSettings.enabledCategories ?? {};
+  const themeMode = resolveTheme();
+  const palette = themeMode === 'dark'
+    ? {
+        background: '#020817',
+        surface: '#0f172a',
+        soft: '#111827',
+        title: '#f8fafc',
+        body: '#cbd5e1',
+        muted: '#94a3b8',
+        accent: '#f59e0b',
+        card: '#0f172a',
+        border: '#1f2937',
+      }
+    : {
+        background: '#f8fafc',
+        surface: '#ffffff',
+        soft: '#e2e8f0',
+        title: '#0f172a',
+        body: '#334155',
+        muted: '#64748b',
+        accent: '#f59e0b',
+        card: '#ffffff',
+        border: '#dfe7f5',
+      };
+
+  const refreshFeed = () => {
+    setItems((current) => [...current].sort((a, b) => b.publishedAt - a.publishedAt));
+    setLastRefreshedAt(Date.now());
+  };
+
+  useEffect(() => {
+    void hydrateSettings().then(() => {
+      setSettingsReady(true);
+    });
+    refreshFeed();
+  }, []);
+
+  useEffect(() => {
+    const intervalMs = appSettings.refreshIntervalMinutes * 60 * 1000;
+    const timer = setInterval(() => {
+      refreshFeed();
+    }, intervalMs);
+
+    return () => clearInterval(timer);
+  }, [appSettings.refreshIntervalMinutes]);
 
   const filteredItems = useMemo(
-    () => items.filter((item) => item.category === activeCategory || activeCategory === 'top-stories'),
-    [items, activeCategory],
+    () => items.filter((item) => {
+      const resolvedCategory = item.category ?? 'top-stories';
+      const categoryAllowed = enabledCategories[resolvedCategory] ?? true;
+
+      if (!categoryAllowed) {
+        return false;
+      }
+
+      return activeCategory === 'top-stories'
+        ? true
+        : item.category === activeCategory;
+    }),
+    [items, activeCategory, enabledCategories],
   );
 
   const toggleExpanded = (id: string) => {
@@ -41,67 +106,119 @@ export default function HomeScreen() {
     );
   };
 
+  const refreshStatus = `Last updated ${new Date(lastRefreshedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+  const handleCategoryPress = (categoryId: CategoryId) => {
+    setActiveCategory(categoryId);
+    const index = CATEGORY_OPTIONS.findIndex((item) => item.id === categoryId);
+    if (index >= 0) {
+      requestAnimationFrame(() => {
+        categoryListRef.current?.scrollToIndex({
+          index,
+          animated: true,
+          viewPosition: 0.5,
+        });
+      });
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="light-content" />
+    <SafeAreaView style={[styles.screen, { backgroundColor: palette.background }]}>
+      <StatusBar barStyle={themeMode === 'dark' ? 'light-content' : 'dark-content'} />
 
       <View style={styles.header}>
-        <View>
-          <Text style={styles.eyebrow}>x2-news-stand</Text>
-          <Text style={styles.title}>Today</Text>
+        <View style={styles.titleWrap}>
+          <Link href="/settings" asChild>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Open settings"
+              style={[styles.iconButton, { backgroundColor: palette.soft, borderColor: palette.soft }]}
+            >
+              <Text style={[styles.iconText, { color: palette.title }]}>☰</Text>
+            </Pressable>
+          </Link>
+
+          <Text style={[styles.title, { color: palette.title }]}>X2 News</Text>
         </View>
 
-        <Link href="/settings" asChild>
+        <View style={styles.headerActions}>
+          <Text style={[styles.bannerText, { color: palette.muted }]}>{refreshStatus}</Text>
+
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Open settings"
-            style={styles.settingsButton}
+            accessibilityLabel="Refresh feeds"
+            onPress={refreshFeed}
+            style={[styles.iconButton, { backgroundColor: palette.soft, borderColor: palette.soft }]}
           >
-            <Text style={styles.settingsText}>⚙</Text>
+            <Text style={[styles.iconText, { color: palette.title }]}>↻</Text>
           </Pressable>
-        </Link>
+        </View>
       </View>
 
-      <View style={styles.categoryRow}>
+      <View style={styles.contentArea}>
         <FlatList
+          data={filteredItems}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.feedList}
+          showsVerticalScrollIndicator={false}
+          snapToInterval={220}
+          snapToAlignment="start"
+          decelerationRate="fast"
+          renderItem={({ item }) => (
+            <NewsCard
+              article={item}
+              expanded={Boolean(expandedIds[item.id])}
+              onToggleExpand={() => toggleExpanded(item.id)}
+              onToggleBookmark={() => toggleBookmark(item.id)}
+              onOpenSource={setSelectedSourceUrl}
+              darkMode={themeMode === 'dark'}
+            />
+          )}
+          ListEmptyComponent={
+            <View style={[styles.emptyState, { backgroundColor: palette.surface, borderColor: palette.border }]}> 
+              <Text style={[styles.emptyTitle, { color: palette.title }]}>No stories in this view</Text>
+              <Text style={[styles.emptyBody, { color: palette.body }]}>Try another category or turn a feed back on in Settings.</Text>
+            </View>
+          }
+        />
+      </View>
+
+      <View style={styles.categoryBar}>
+        <FlatList
+          ref={categoryListRef}
           data={CATEGORY_OPTIONS}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoryList}
           keyExtractor={(item) => item.id}
+          onScrollToIndexFailed={({ index }) => {
+            categoryListRef.current?.scrollToOffset({
+              offset: index * 90,
+              animated: false,
+            });
+          }}
           renderItem={({ item }) => (
             <CategoryPill
               label={item.label}
               active={activeCategory === item.id}
-              onPress={() => setActiveCategory(item.id)}
+              onPress={() => handleCategoryPress(item.id)}
             />
           )}
         />
       </View>
 
-      <FlatList
-        data={filteredItems}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.feedList}
-        showsVerticalScrollIndicator={false}
-        snapToInterval={220}
-        snapToAlignment="start"
-        decelerationRate="fast"
-        renderItem={({ item }) => (
-          <NewsCard
-            article={item}
-            expanded={Boolean(expandedIds[item.id])}
-            onToggleExpand={() => toggleExpanded(item.id)}
-            onToggleBookmark={() => toggleBookmark(item.id)}
-          />
-        )}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyTitle}>No stories in this view</Text>
-            <Text style={styles.emptyBody}>Try another category or turn a feed back on in Settings.</Text>
+      <Modal visible={selectedSourceUrl !== null} animationType="slide" transparent={false} onRequestClose={() => setSelectedSourceUrl(null)}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }}>
+          <View style={styles.modalHeader}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close story" onPress={() => setSelectedSourceUrl(null)} style={styles.modalCloseButton}>
+              <Text style={[styles.modalCloseText, { color: palette.title }]}>Close</Text>
+            </Pressable>
           </View>
-        }
-      />
+          {selectedSourceUrl ? (
+            <WebView source={{ uri: selectedSourceUrl }} startInLoadingState style={styles.webView} />
+          ) : null}
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -109,7 +226,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#020817',
   },
   header: {
     flexDirection: 'row',
@@ -119,62 +235,108 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 8,
   },
+  titleWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    minWidth: 0,
+    flexShrink: 1,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginLeft: 8,
+    flexShrink: 0,
+  },
   eyebrow: {
-    color: '#fbbf24',
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
   title: {
-    color: '#f8fafc',
-    fontSize: 34,
+    fontSize: 28,
     fontWeight: '800',
+    flexShrink: 1,
+    maxWidth: '68%',
   },
-  settingsButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: '#111827',
+  iconButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#374151',
   },
-  settingsText: {
-    fontSize: 22,
-    color: '#e2e8f0',
+  iconText: {
+    fontSize: 20,
+    fontWeight: '700',
+    lineHeight: 20,
   },
-  categoryRow: {
-    paddingLeft: 18,
-    marginBottom: 12,
+  bannerRow: {
+    paddingHorizontal: 18,
+    marginBottom: 6,
+  },
+  bannerText: {
+    fontSize: 12,
+    fontWeight: '600',
+    flexShrink: 1,
+  },
+  contentArea: {
+    flex: 1,
+  },
+  categoryBar: {
+    height: 58,
+    justifyContent: 'center',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(148, 163, 184, 0.18)',
+    paddingHorizontal: 14,
+    paddingBottom: 8,
   },
   categoryList: {
     paddingRight: 20,
-    paddingBottom: 4,
+    paddingVertical: 4,
+    alignItems: 'center',
   },
   feedList: {
     paddingHorizontal: 18,
     paddingTop: 8,
-    paddingBottom: 42,
+    paddingBottom: 18,
   },
   emptyState: {
-    backgroundColor: '#0f172a',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#1f2937',
     padding: 18,
     marginTop: 28,
   },
   emptyTitle: {
-    color: '#f8fafc',
     fontSize: 20,
     fontWeight: '700',
     marginBottom: 8,
   },
   emptyBody: {
-    color: '#cbd5e1',
     fontSize: 14,
     lineHeight: 20,
+  },
+  modalHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#334155',
+  },
+  modalCloseButton: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: '#111827',
+  },
+  modalCloseText: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  webView: {
+    flex: 1,
   },
 });

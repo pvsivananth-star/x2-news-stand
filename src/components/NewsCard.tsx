@@ -6,6 +6,8 @@ interface NewsCardProps {
   expanded: boolean;
   onToggleExpand: () => void;
   onToggleBookmark: () => void;
+  onOpenSource: (url: string) => void;
+  darkMode: boolean;
 }
 
 function formatRelativeTime(timestamp: number): string {
@@ -24,70 +26,121 @@ function formatRelativeTime(timestamp: number): string {
   return `${diffDays}d ago`;
 }
 
-export function NewsCard({ article, expanded, onToggleExpand, onToggleBookmark }: NewsCardProps) {
+export function NewsCard({ article, expanded, onToggleExpand, onToggleBookmark, onOpenSource, darkMode }: NewsCardProps) {
   const sourceCount = article.sourceLinks.length;
+  const colors = darkMode
+    ? {
+        card: '#0f172a',
+        cardBorder: '#1f2937',
+        meta: '#cbd5e1',
+        time: '#94a3b8',
+        text: '#f8fafc',
+        body: '#dfe7f5',
+        muted: '#94a3b8',
+        accent: '#7dd3fc',
+        action: '#1d4ed8',
+        button: '#111827',
+      }
+    : {
+        card: '#ffffff',
+        cardBorder: '#dfe7f5',
+        meta: '#334155',
+        time: '#64748b',
+        text: '#0f172a',
+        body: '#334155',
+        muted: '#64748b',
+        accent: '#0369a1',
+        action: '#dbeafe',
+        button: '#f1f5f9',
+      };
+
+  const paragraphs = article.summary ? article.summary.split('\n\n').filter(Boolean) : [''];
 
   return (
-    <View style={styles.card} accessible>
-      <View style={styles.headerRow}>
-        <View style={styles.metaBlock}>
-          <Text style={styles.sourceText}>{article.sourceName}</Text>
-          <Text style={styles.timeText}>{formatRelativeTime(article.publishedAt)}</Text>
+    <Pressable onPress={onToggleExpand} accessibilityRole="button" accessibilityLabel={`Toggle article details for ${article.title}`}>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]} accessible>
+        <View style={styles.headerRow}>
+          <View style={styles.metaBlock}>
+            <Text style={[styles.sourceText, { color: colors.meta }]}>{article.sourceName}</Text>
+            <Text style={[styles.timeText, { color: colors.time }]}>{formatRelativeTime(article.publishedAt)}</Text>
+          </View>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={article.bookmarked ? 'Remove bookmark' : 'Add bookmark'}
+            onPress={(event) => {
+              event.stopPropagation();
+              onToggleBookmark();
+            }}
+            style={[styles.iconButton, { backgroundColor: colors.button }]}
+          >
+            <Text style={[styles.iconText, { color: darkMode ? '#fbbf24' : '#d97706' }]}>{article.bookmarked ? '★' : '☆'}</Text>
+          </Pressable>
         </View>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={article.bookmarked ? 'Remove bookmark' : 'Add bookmark'}
-          onPress={onToggleBookmark}
-          style={styles.iconButton}
-        >
-          <Text style={styles.iconText}>{article.bookmarked ? '★' : '☆'}</Text>
-        </Pressable>
-      </View>
+        <Text style={[styles.titleText, { color: colors.text }]}>{article.title}</Text>
 
-      <Text style={styles.titleText}>{article.title}</Text>
+        {!expanded ? (
+          <Text style={[styles.summaryText, { color: colors.body }]} numberOfLines={4}>
+            {paragraphs[0]}
+          </Text>
+        ) : (
+          <View style={styles.expandedView}>
+            {paragraphs.map((paragraph, index) => (
+              <Text key={`${article.id}-p-${index}`} style={[styles.summaryText, { color: colors.body }]}>
+                {paragraph}
+              </Text>
+            ))}
 
-      {!expanded ? (
-        <Text style={styles.summaryText} numberOfLines={3}>
-          {article.summary}
-        </Text>
-      ) : (
-        <View style={styles.expandedView}>
-          <Text style={styles.summaryText}>{article.summary}</Text>
-          {article.sourceLinks.length > 0 && (
-            <Text style={styles.linkText}>
-              {article.sourceLinks.map((entry) => entry.name).join(' • ')}
-            </Text>
-          )}
+            {article.sourceLinks.length > 0 && (
+              <View style={styles.linkGroup}>
+                {article.sourceLinks.map((entry) => (
+                  <Pressable
+                    key={`${article.id}-${entry.url}`}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Open source: ${entry.name ?? 'source'}`}
+                    onPress={(event) => {
+                      event.stopPropagation();
+                      onOpenSource(entry.url || article.url || 'https://example.com');
+                    }}
+                    style={styles.linkButton}
+                  >
+                    <Text style={[styles.linkText, { color: colors.accent }]}>{entry.name ?? 'Source'}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
+
+        <View style={styles.footerRow}>
+          <Text style={[styles.sourceMetaText, { color: colors.muted }]}>{sourceCount > 1 ? `+${sourceCount - 1} sources` : 'Source'}</Text>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={expanded ? 'Collapse article' : 'Expand article'}
+            onPress={(event) => {
+              event.stopPropagation();
+              onToggleExpand();
+            }}
+            style={[styles.expandButton, { backgroundColor: colors.action }]}
+          >
+            <Text style={[styles.expandText, { color: darkMode ? '#f8fafc' : '#0f172a' }]}>{expanded ? '←' : '→'}</Text>
+          </Pressable>
         </View>
-      )}
-
-      <View style={styles.footerRow}>
-        <Text style={styles.sourceMetaText}>{sourceCount > 1 ? `+${sourceCount - 1} sources` : 'Source'}</Text>
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={expanded ? 'Collapse article' : 'Expand article'}
-          onPress={onToggleExpand}
-          style={styles.expandButton}
-        >
-          <Text style={styles.expandText}>{expanded ? '←' : '→'}</Text>
-        </Pressable>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#0f172a',
-    borderColor: '#1f2937',
     borderWidth: 1,
     borderRadius: 18,
     padding: 16,
     marginBottom: 14,
     shadowColor: '#0b1120',
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.18,
     shadowOffset: { width: 0, height: 8 },
     shadowRadius: 16,
     elevation: 4,
@@ -104,14 +157,12 @@ const styles = StyleSheet.create({
     gap: 9,
   },
   sourceText: {
-    color: '#cbd5e1',
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0.2,
     textTransform: 'uppercase',
   },
   timeText: {
-    color: '#94a3b8',
     fontSize: 12,
     fontWeight: '500',
   },
@@ -121,22 +172,18 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#111827',
   },
   iconText: {
-    color: '#fbbf24',
     fontSize: 18,
     fontWeight: '700',
   },
   titleText: {
-    color: '#f8fafc',
     fontSize: 22,
     fontWeight: '700',
     lineHeight: 30,
     marginBottom: 12,
   },
   summaryText: {
-    color: '#cbd5e1',
     fontSize: 15,
     lineHeight: 22,
     marginBottom: 12,
@@ -144,11 +191,21 @@ const styles = StyleSheet.create({
   expandedView: {
     marginTop: 4,
   },
+  linkGroup: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  linkButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(125, 211, 252, 0.12)',
+  },
   linkText: {
-    color: '#7dd3fc',
     fontSize: 13,
     fontWeight: '600',
-    marginBottom: 6,
   },
   footerRow: {
     flexDirection: 'row',
@@ -156,7 +213,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   sourceMetaText: {
-    color: '#94a3b8',
     fontSize: 12,
     fontWeight: '600',
   },
@@ -166,10 +222,8 @@ const styles = StyleSheet.create({
     borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1d4ed8',
   },
   expandText: {
-    color: '#f8fafc',
     fontSize: 22,
     fontWeight: '700',
   },

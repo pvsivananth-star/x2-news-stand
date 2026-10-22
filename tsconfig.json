@@ -2,6 +2,9 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "paths": {
       "@/*": [
         "./*"
@@ -10,6 +13,11 @@
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "**/*.test.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".expo"
   ]
 }
