@@ -1,0 +1,14 @@
+{
+  "_note": "Status 'unverified' means the URL must be opened in a feed reader before enabling. Do not enable an unverified source.",
+  "sources": [
+    { "id": "thehindu-home", "name": "The Hindu", "language": "en", "category": "national", "type": "rss", "url": "https://www.thehindu.com/feeder/default.rss", "status": "unverified" },
+    { "id": "thehindu-national", "name": "The Hindu", "language": "en", "category": "national", "type": "rss", "url": "https://www.thehindu.com/news/national/feeder/default.rss", "status": "unverified" },
+    { "id": "thehindu-international", "name": "The Hindu", "language": "en", "category": "national", "type": "rss", "url": "https://www.thehindu.com/news/international/feeder/default.rss", "status": "unverified" },
+    { "id": "thehindu-business", "name": "The Hindu", "language": "en", "category": "market", "type": "rss", "url": "https://www.thehindu.com/business/feeder/default.rss", "status": "unverified" },
+    { "id": "thehindu-sci-tech", "name": "The Hindu", "language": "en", "category": "tech", "type": "rss", "url": "https://www.thehindu.com/sci-tech/technology/feeder/default.rss", "status": "unverified" },
+    { "id": "bloomberg-news", "name": "Bloomberg", "language": "en", "category": "market", "type": "rss", "url": "https://www.bloomberg.com/feeds/news.rss", "status": "unverified" },
+    { "id": "bloomberg-markets", "name": "Bloomberg", "language": "en", "category": "market", "type": "rss", "url": "https://www.bloomberg.com/feeds/markets/news.rss", "status": "unverified" },
+    { "id": "bloomberg-technology", "name": "Bloomberg", "language": "en", "category": "tech", "type": "rss", "url": "https://www.bloomberg.com/feeds/technology/news.rss", "status": "unverified" },
+    { "id": "bbc-tamil", "name": "BBC News Tamil", "language": "ta", "category": "national", "type": "rss", "url": "https://feeds.bbci.co.uk/tamil/rss.xml", "status": "unverified" }
+  ]
+}

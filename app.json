@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "x2-news-stand",
+    "slug": "x2-news-stand",
+    "version": "0.1.0",
+    "scheme": "x2newsstand",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": { "bundleIdentifier": "com.example.x2newsstand" },
+    "android": { "package": "com.example.x2newsstand" },
+    "plugins": ["expo-router"]
+  }
+}
