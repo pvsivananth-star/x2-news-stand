@@ -4,18 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="BackgroundAgentGlobalSettings">
-    <option name="selectedModelId" value="gpt-4o-2024-08-06" />
+    <option name="selectedModelId" value="gpt-5.2-codex" />
     <option name="selectedProviderName" value="OpenAI" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="26fd0106-ec00-4b3e-9f65-ce79e7e29213" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/jsonSchemas.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AGENTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/AGENTS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.md" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,58 +46,58 @@
       <entry key="MS100" value="1.0" />
       <entry key="MS500" value="1.0" />
       <entry key="S2" value="1.0" />
-      <entry key="S5" value="1.0000000000000204" />
-      <entry key="S10" value="1.0000001430280494" />
-      <entry key="S30" value="1.0052948513910283" />
-      <entry key="S60" value="1.103706128014898" />
-      <entry key="M2" value="2.4543111002442624" />
-      <entry key="M5" value="12.94112078247881" />
-      <entry key="M10" value="26.034673954150357" />
-      <entry key="M15" value="33.11661754949023" />
-      <entry key="M30" value="42.2405833348059" />
-      <entry key="H1" value="47.747539484284125" />
-      <entry key="H2" value="50.77454102273352" />
-      <entry key="H4" value="52.36166529057876" />
-      <entry key="D1" value="53.72331810107814" />
-      <entry key="W1" value="53.960384286550365" />
+      <entry key="S5" value="1.0" />
+      <entry key="S10" value="1.000000000825836" />
+      <entry key="S30" value="1.0133159355934716" />
+      <entry key="S60" value="1.8603093098332504" />
+      <entry key="M2" value="7.96607362075228" />
+      <entry key="M5" value="27.579344088241456" />
+      <entry key="M10" value="48.85227338532502" />
+      <entry key="M15" value="62.00827379499805" />
+      <entry key="M30" value="81.39640960542131" />
+      <entry key="H1" value="94.58160321121713" />
+      <entry key="H2" value="102.33368256940956" />
+      <entry key="H4" value="106.54514330340541" />
+      <entry key="D1" value="110.239950659394" />
+      <entry key="W1" value="110.8909821204703" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="0.0" />
-      <entry key="S2" value="7.085557614417345E-99" />
-      <entry key="S5" value="5.497302220967169E-40" />
-      <entry key="S10" value="2.3446326409412557E-20" />
-      <entry key="S30" value="2.8621448045521935E-7" />
-      <entry key="S60" value="5.34990168559404E-4" />
-      <entry key="M2" value="0.023129854486343047" />
-      <entry key="M5" value="0.22165072706611255" />
-      <entry key="M10" value="0.4707979684175713" />
-      <entry key="M15" value="0.6051871807190639" />
-      <entry key="M30" value="0.7779377743232834" />
-      <entry key="H1" value="0.8820078085387247" />
-      <entry key="H2" value="0.9391527077843753" />
-      <entry key="H4" value="0.9690989153767409" />
-      <entry key="D1" value="0.994782228034916" />
-      <entry key="W1" value="0.9992529317552794" />
+      <entry key="MS500" value="5.24154071685969E-209" />
+      <entry key="S2" value="1.21074223058798E-52" />
+      <entry key="S5" value="2.5422894150941097E-21" />
+      <entry key="S10" value="7.106236307566125E-11" />
+      <entry key="S30" value="6.570026711379995E-4" />
+      <entry key="S60" value="0.036245830622036054" />
+      <entry key="M2" value="0.26954493261928825" />
+      <entry key="M5" value="0.9361881272729673" />
+      <entry key="M10" value="1.5378150249552616" />
+      <entry key="M15" value="1.871169565711585" />
+      <entry key="M30" value="2.3331639689824892" />
+      <entry key="H1" value="2.634513530769374" />
+      <entry key="H2" value="2.8082351777926835" />
+      <entry key="H4" value="2.901721747668331" />
+      <entry key="D1" value="2.9832748484379468" />
+      <entry key="W1" value="2.997602061936362" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9460576467255959" />
-      <entry key="MS500" value="0.9889709163809315" />
-      <entry key="S2" value="0.9972312513520695" />
-      <entry key="S5" value="0.9988915792637001" />
-      <entry key="S10" value="0.999445777560016" />
-      <entry key="S30" value="1.0050926826047328" />
-      <entry key="S60" value="1.104013221555465" />
-      <entry key="M2" value="2.4768795405329267" />
-      <entry key="M5" value="13.161447188197828" />
-      <entry key="M10" value="26.504156654057837" />
-      <entry key="M15" value="33.72069565651137" />
-      <entry key="M30" value="43.017817992399216" />
-      <entry key="H1" value="48.6291511079286" />
-      <entry key="H2" value="51.713483401670246" />
-      <entry key="H4" value="53.33065583731592" />
-      <entry key="D1" value="54.71808180982504" />
-      <entry key="W1" value="54.959634561309834" />
+      <entry key="MS100" value="0.9592641193252643" />
+      <entry key="MS500" value="0.9917167307382933" />
+      <entry key="S2" value="0.9979227189990506" />
+      <entry key="S5" value="0.999168569213607" />
+      <entry key="S10" value="0.9995841990540151" />
+      <entry key="S30" value="1.0138204770076276" />
+      <entry key="S60" value="1.8960916183262844" />
+      <entry key="M2" value="8.234086055473231" />
+      <entry key="M5" value="28.513274359839567" />
+      <entry key="M10" value="50.38802111504535" />
+      <entry key="M15" value="63.87766615214463" />
+      <entry key="M30" value="83.72838652699454" />
+      <entry key="H1" value="97.2154208212248" />
+      <entry key="H2" value="105.14153956928607" />
+      <entry key="H4" value="109.4466677396272" />
+      <entry key="D1" value="113.22319141907761" />
+      <entry key="W1" value="113.88857928227438" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -118,7 +113,7 @@
           <model>
             <option name="modelProviderName" value="OpenAI" />
             <option name="modelType" value="byok_id" />
-            <option name="modelValue" value="gpt-4o-2024-08-06" />
+            <option name="modelValue" value="gpt-5.2-codex" />
           </model>
         </option>
         <option name="targetType" value="BACKGROUND" />

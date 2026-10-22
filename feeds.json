@@ -1,0 +1,977 @@
+{
+  "_readme": "x2-news-stand feed list. Edit this file to add, remove, or switch feeds. 'enabled: false' keeps a feed listed but inactive. Status: 'working' = fetched with items by the owner's check on 2026-10-22; 'tracker-listed' = a third-party feed tracker lists it as working on Oct 2026, not yet checked in this project, enabled but verify; 'candidate' = found in directories only, not checked, disabled until verified; 'pending' = no working URL found yet. Priority: local Tamil feeds come first, English feeds follow; 'fallback: true' marks English feeds that duplicate Tamil coverage. Each feed is fetched through its adapter; a failing feed is skipped and never blocks the others.",
+  "lastChecked": "2026-10-22",
+  "feeds": [
+    {
+      "id": "oneindia-tamil-news",
+      "name": "Oneindia Tamil",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://tamil.oneindia.com/rss/feeds/tamil-news-fb.xml",
+      "categories": [
+        "top-stories",
+        "local",
+        "national",
+        "world",
+        "politics"
+      ],
+      "status": "working",
+      "enabled": true,
+      "notes": "Titles in Tamil; teasers often English (see O1)."
+    },
+    {
+      "id": "asianet-tamil",
+      "name": "Asianet Tamil",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://tamil.asianetnews.com/rss",
+      "categories": [
+        "top-stories",
+        "national",
+        "world"
+      ],
+      "status": "working",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "news18-tamil-national",
+      "name": "News18 Tamil",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://tamil.news18.com/commonfeeds/v1/tam/rss/national.xml",
+      "categories": [
+        "national"
+      ],
+      "status": "working",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "bbc-tamil",
+      "name": "BBC News Tamil",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://feeds.bbci.co.uk/tamil/rss.xml",
+      "categories": [
+        "world",
+        "national",
+        "top-stories"
+      ],
+      "status": "working",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "gizbot-tamil",
+      "name": "Gizbot Tamil",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://tamil.gizbot.com/rss/gizbot-tamil-fb.xml",
+      "categories": [
+        "technology"
+      ],
+      "status": "working",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "goodreturns-tamil-money",
+      "name": "Goodreturns Tamil",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://tamil.goodreturns.in/rss/tamil-money-news-fb.xml",
+      "categories": [
+        "markets",
+        "business"
+      ],
+      "status": "working",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "filmibeat-tamil",
+      "name": "Filmibeat Tamil",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://tamil.filmibeat.com/rss/feeds/filmibeat-tamil-fb.xml",
+      "categories": [
+        "entertainment"
+      ],
+      "status": "working",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "mykhel-tamil",
+      "name": "Mykhel Tamil",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://tamil.mykhel.com/rss/feeds/mykhel-tamil-fb.xml",
+      "categories": [
+        "sports"
+      ],
+      "status": "working",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "vikatan",
+      "name": "Vikatan",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://www.vikatan.com/stories.rss",
+      "categories": [
+        "lifestyle",
+        "entertainment",
+        "politics"
+      ],
+      "status": "working",
+      "enabled": false,
+      "notes": "Works, but topic mix unconfirmed. Enable after checking."
+    },
+    {
+      "id": "dinamalar",
+      "name": "Dinamalar",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://rss.dinamalar.com/?cat=ara1",
+      "categories": [
+        "top-stories"
+      ],
+      "status": "pending",
+      "enabled": false,
+      "notes": "Returned 200 but zero items. Find a working feed URL."
+    },
+    {
+      "id": "dinamani",
+      "name": "Dinamani",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://www.dinamani.com/rss",
+      "categories": [
+        "top-stories"
+      ],
+      "status": "pending",
+      "enabled": false,
+      "notes": "Not testable from the checking environment. Test from a phone."
+    },
+    {
+      "id": "hindu-tamil-thisai",
+      "name": "Hindu Tamil Thisai",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://www.hindutamil.in/topic/rss",
+      "categories": [
+        "top-stories"
+      ],
+      "status": "pending",
+      "enabled": false,
+      "notes": "Not testable from the checking environment. Legacy feedburner feeds return zero items."
+    },
+    {
+      "id": "news18-india",
+      "name": "News18 India",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.news18.com/rss/india.xml",
+      "categories": [
+        "national",
+        "top-stories"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "English fallback."
+    },
+    {
+      "id": "news18-world",
+      "name": "News18 World",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.news18.com/rss/world.xml",
+      "categories": [
+        "world"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "English fallback."
+    },
+    {
+      "id": "news18-politics",
+      "name": "News18 Politics",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.news18.com/commonfeeds/v1/eng/rss/politics.xml",
+      "categories": [
+        "politics"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "English fallback."
+    },
+    {
+      "id": "news18-viral",
+      "name": "News18 Viral",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.news18.com/commonfeeds/v1/eng/rss/viral.xml",
+      "categories": [
+        "viral-trending"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "English fallback."
+    },
+    {
+      "id": "the-hindu-sci-tech-science",
+      "name": "The Hindu",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.thehindu.com/sci-tech/science/feeder/default.rss",
+      "categories": [
+        "science"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "English fallback."
+    },
+    {
+      "id": "ndtv-top-stories",
+      "name": "NDTV",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.feedburner.com/ndtvnews-top-stories",
+      "categories": [
+        "top-stories"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "English fallback. Feedburner address; may be retired."
+    },
+    {
+      "id": "bbc-news-top",
+      "name": "BBC News - Top stories",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.bbci.co.uk/news/rss.xml",
+      "categories": [
+        "top-stories"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": "UK/global."
+    },
+    {
+      "id": "bbc-news-world",
+      "name": "BBC News - World",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+      "categories": [
+        "world"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "bbc-news-business",
+      "name": "BBC News - Business",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.bbci.co.uk/news/business/rss.xml",
+      "categories": [
+        "markets",
+        "business"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "bbc-news-technology",
+      "name": "BBC News - Technology",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.bbci.co.uk/news/technology/rss.xml",
+      "categories": [
+        "technology"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "bbc-news-uk",
+      "name": "BBC News - UK",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.bbci.co.uk/news/uk/rss.xml",
+      "categories": [
+        "national"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "bbc-news-health",
+      "name": "BBC News - Health",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.bbci.co.uk/news/health/rss.xml",
+      "categories": [
+        "health-medical"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "bbc-news-middle-east",
+      "name": "BBC News - Middle East",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml",
+      "categories": [
+        "world"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "bbc-news-in-pictures",
+      "name": "BBC News - In Pictures",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.bbci.co.uk/news/in_pictures/rss.xml",
+      "categories": [
+        "lifestyle",
+        "viral-trending"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": "Photo stories."
+    },
+    {
+      "id": "bbc-sport",
+      "name": "BBC Sport",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.bbci.co.uk/sport/rss.xml",
+      "categories": [
+        "sports"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked."
+    },
+    {
+      "id": "guardian-uk",
+      "name": "The Guardian - UK",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.theguardian.com/uk/rss",
+      "categories": [
+        "national"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "guardian-us",
+      "name": "The Guardian - US",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.theguardian.com/us/rss",
+      "categories": [
+        "national",
+        "world"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "guardian-world",
+      "name": "The Guardian - World",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.theguardian.com/world/rss",
+      "categories": [
+        "world"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked."
+    },
+    {
+      "id": "guardian-economics",
+      "name": "The Guardian - Economics",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.theguardian.com/theguardian/business/economics/rss",
+      "categories": [
+        "markets",
+        "business"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "dw-english",
+      "name": "DW News (English)",
+      "language": "en",
+      "type": "rss",
+      "url": "https://rss.dw.com/rdf/rss-en-all",
+      "categories": [
+        "world",
+        "national"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked."
+    },
+    {
+      "id": "economist-world-week",
+      "name": "The Economist - The world this week",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.economist.com/the-world-this-week/rss.xml",
+      "categories": [
+        "world",
+        "markets"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked."
+    },
+    {
+      "id": "cnbc-top-news",
+      "name": "CNBC - Top News",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+      "categories": [
+        "markets",
+        "business",
+        "top-stories"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "cnbc-world",
+      "name": "CNBC - World News",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.cnbc.com/id/100727362/device/rss/rss.html",
+      "categories": [
+        "world"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "cnbc-asia",
+      "name": "CNBC - Asia-Pacific News",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.cnbc.com/id/19832390/device/rss/rss.html",
+      "categories": [
+        "world",
+        "markets"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "cnbc-europe",
+      "name": "CNBC - Europe News",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.cnbc.com/id/19794221/device/rss/rss.html",
+      "categories": [
+        "world",
+        "markets"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "npr-news",
+      "name": "NPR News",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.npr.org/1001/rss.xml",
+      "categories": [
+        "national",
+        "world"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked."
+    },
+    {
+      "id": "npr-economy",
+      "name": "NPR Economy",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.npr.org/1006/rss.xml",
+      "categories": [
+        "markets",
+        "business"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked."
+    },
+    {
+      "id": "npr-health",
+      "name": "NPR Health",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.npr.org/1128/rss.xml",
+      "categories": [
+        "health-medical"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked."
+    },
+    {
+      "id": "nyt-world",
+      "name": "The New York Times - World",
+      "language": "en",
+      "type": "rss",
+      "url": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+      "categories": [
+        "world"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Checked 22 Oct 2026: 48 items."
+    },
+    {
+      "id": "nyt-us",
+      "name": "The New York Times - US",
+      "language": "en",
+      "type": "rss",
+      "url": "https://rss.nytimes.com/services/xml/rss/nyt/US.xml",
+      "categories": [
+        "national"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Checked 22 Oct 2026: 40 items."
+    },
+    {
+      "id": "nyt-home",
+      "name": "The New York Times - Home",
+      "language": "en",
+      "type": "rss",
+      "url": "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+      "categories": [
+        "top-stories"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked."
+    },
+    {
+      "id": "marketwatch-top",
+      "name": "MarketWatch - Top stories",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.marketwatch.com/marketwatch/topstories",
+      "categories": [
+        "markets",
+        "business"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": ""
+    },
+    {
+      "id": "cnn-top",
+      "name": "CNN - Top stories",
+      "language": "en",
+      "type": "rss",
+      "url": "http://rss.cnn.com/rss/edition.rss",
+      "categories": [
+        "top-stories",
+        "world"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked. http scheme; confirm https redirect."
+    },
+    {
+      "id": "reuters-via-google",
+      "name": "Reuters (via Google News search)",
+      "language": "en",
+      "type": "rss",
+      "url": "https://news.google.com/rss/search?q=when:24h+site:reuters.com&ceid=US:en&hl=en-US&gl=US",
+      "categories": [
+        "top-stories",
+        "world",
+        "markets",
+        "business",
+        "technology"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": "No official Reuters feed. Google News search restricted to reuters.com. Google News link redirects; confirm terms (O2)."
+    },
+    {
+      "id": "bloomberg-news",
+      "name": "Bloomberg - News",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.bloomberg.com/feeds/news.rss",
+      "categories": [
+        "top-stories",
+        "markets",
+        "business"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": "Terms pending (O5)."
+    },
+    {
+      "id": "bloomberg-markets",
+      "name": "Bloomberg - Markets",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.bloomberg.com/feeds/markets/news.rss",
+      "categories": [
+        "markets"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": "Terms pending (O5)."
+    },
+    {
+      "id": "bloomberg-technology",
+      "name": "Bloomberg - Technology",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.bloomberg.com/feeds/technology/news.rss",
+      "categories": [
+        "technology"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": "Terms pending (O5)."
+    },
+    {
+      "id": "bloomberg-economics",
+      "name": "Bloomberg - Economics",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.bloomberg.com/feeds/economics/news.rss",
+      "categories": [
+        "markets",
+        "business"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": "Terms pending (O5)."
+    },
+    {
+      "id": "bloomberg-politics",
+      "name": "Bloomberg - Politics",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.bloomberg.com/feeds/politics/news.rss",
+      "categories": [
+        "politics"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": "Terms pending (O5)."
+    },
+    {
+      "id": "federal-reserve-press",
+      "name": "US Federal Reserve - Press releases",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.federalreserve.gov/feeds/press_all.xml",
+      "categories": [
+        "markets",
+        "business"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Official central bank feed. Not checked."
+    },
+    {
+      "id": "the-hindu-international",
+      "name": "The Hindu - International",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.thehindu.com/news/international/feeder/default.rss",
+      "categories": [
+        "world"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Checked 22 Oct 2026: 60 items."
+    },
+    {
+      "id": "the-hindu-home",
+      "name": "The Hindu - Home",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.thehindu.com/feeder/default.rss",
+      "categories": [
+        "top-stories",
+        "national"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Listed by tracker 3 Oct 2026."
+    },
+    {
+      "id": "the-hindu-national",
+      "name": "The Hindu - National",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.thehindu.com/news/national/feeder/default.rss",
+      "categories": [
+        "national"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Listed by tracker 3 Oct 2026."
+    },
+    {
+      "id": "the-hindu-business",
+      "name": "The Hindu - Business",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.thehindu.com/business/feeder/default.rss",
+      "categories": [
+        "business",
+        "markets"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Listed by tracker 3 Oct 2026."
+    },
+    {
+      "id": "the-hindu-markets",
+      "name": "The Hindu - Markets",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.thehindu.com/business/markets/feeder/default.rss",
+      "categories": [
+        "markets"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Listed by tracker 3 Oct 2026."
+    },
+    {
+      "id": "the-hindu-economy",
+      "name": "The Hindu - Economy",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.thehindu.com/business/Economy/feeder/default.rss",
+      "categories": [
+        "business",
+        "markets"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Listed by tracker 3 Oct 2026."
+    },
+    {
+      "id": "economic-times-top",
+      "name": "The Economic Times - Top stories",
+      "language": "en",
+      "type": "rss",
+      "url": "https://economictimes.indiatimes.com/rssfeedstopstories.cms",
+      "categories": [
+        "top-stories",
+        "business",
+        "markets"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked."
+    },
+    {
+      "id": "livemint-markets",
+      "name": "Livemint - Markets",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.livemint.com/rss/markets",
+      "categories": [
+        "markets"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked. Confirm URL form."
+    },
+    {
+      "id": "times-of-india-1",
+      "name": "Times of India - Feed 1",
+      "language": "en",
+      "type": "rss",
+      "url": "https://timesofindia.indiatimes.com/rssfeeds/1898055.cms",
+      "categories": [
+        "national",
+        "politics"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Checked 22 Oct 2026: 20 items. Topic to confirm."
+    },
+    {
+      "id": "times-of-india-2",
+      "name": "Times of India - Feed 2",
+      "language": "en",
+      "type": "rss",
+      "url": "https://timesofindia.indiatimes.com/rssfeeds/1081479906.cms",
+      "categories": [
+        "national"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Checked 22 Oct 2026: 20 items. Topic to confirm."
+    },
+    {
+      "id": "times-of-india-3",
+      "name": "Times of India - Feed 3",
+      "language": "en",
+      "type": "rss",
+      "url": "http://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms",
+      "categories": [
+        "national"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Checked 22 Oct 2026: 20 items. Topic to confirm."
+    },
+    {
+      "id": "india-today",
+      "name": "India Today",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.indiatoday.in/rss/1206577",
+      "categories": [
+        "national"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Checked 22 Oct 2026: 20 items. Topic to confirm."
+    },
+    {
+      "id": "news18-sports",
+      "name": "News18 Sports",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.news18.com/commonfeeds/v1/eng/rss/sports.xml",
+      "categories": [
+        "sports"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Checked 22 Oct 2026: 200 items."
+    },
+    {
+      "id": "ndtv-india",
+      "name": "NDTV India",
+      "language": "en",
+      "type": "rss",
+      "url": "https://feeds.feedburner.com/ndtvnews-india-news",
+      "categories": [
+        "national"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Checked 22 Oct 2026: 20 items. Feedburner address."
+    },
+    {
+      "id": "ani-politics",
+      "name": "ANI - National politics",
+      "language": "en",
+      "type": "rss",
+      "url": "https://aninews.in/rss/feed/category/national/politics.xml",
+      "categories": [
+        "politics"
+      ],
+      "status": "pending",
+      "enabled": false,
+      "notes": "Checked 22 Oct 2026: HTTP 403 (blocked). Retry later or from a phone."
+    },
+    {
+      "id": "al-jazeera-english",
+      "name": "Al Jazeera English",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.aljazeera.com/xml/rss/all.xml",
+      "categories": [
+        "world"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked."
+    },
+    {
+      "id": "times-of-israel",
+      "name": "The Times of Israel",
+      "language": "en",
+      "type": "rss",
+      "url": "https://www.timesofisrael.com/feed/",
+      "categories": [
+        "world"
+      ],
+      "status": "working",
+      "enabled": true,
+      "fallback": true,
+      "notes": "Checked 22 Oct 2026: 15 items."
+    },
+    {
+      "id": "allafrica-headlines",
+      "name": "allAfrica - Headlines",
+      "language": "en",
+      "type": "rss",
+      "url": "https://allafrica.com/tools/headlines/rdf/africa/headlines.rdf",
+      "categories": [
+        "world"
+      ],
+      "status": "candidate",
+      "enabled": false,
+      "notes": "Listed in directories; not checked."
+    }
+  ]
+}
