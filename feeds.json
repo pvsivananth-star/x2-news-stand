@@ -127,8 +127,8 @@
         "politics"
       ],
       "status": "working",
-      "enabled": false,
-      "notes": "Works, but topic mix unconfirmed. Enable after checking."
+      "enabled": true,
+      "notes": "Checked 22 Oct 2026: 19 items. Enabled per owner. Topic mix still unconfirmed."
     },
     {
       "id": "dinamalar",
