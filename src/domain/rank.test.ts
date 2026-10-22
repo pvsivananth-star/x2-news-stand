@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { scoreArticle, rankArticles, filterByEnabledCategories } from './rank.ts';
-import type { Article } from './types.ts';
+import { scoreArticle, rankArticles, filterByEnabledCategories } from './rank';
+import type { Article } from './types';
 
 const H = 3_600_000;
 const now = 1_000 * H;
@@ -11,9 +11,12 @@ function art(id: string, sources: number, ageHours: number, categories: Article[
     id,
     title: id,
     url: `https://example.com/${id}`,
-    sourceLinks: Array.from({ length: sources }, (_, i) => ({ sourceName: `s${i}`, url: `https://s${i}.example/${id}` })),
+    sourceLinks: Array.from({ length: sources }, (_, i) => ({ name: `s${i}`, url: `https://s${i}.example/${id}` })),
     publishedAt: now - ageHours * H,
     categories,
+    summary: id,
+    sourceName: 'Example',
+    category: 'top-stories',
   };
 }
 

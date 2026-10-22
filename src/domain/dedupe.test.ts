@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mergeDuplicates } from './dedupe.ts';
-import type { RawItem } from './types.ts';
+import { mergeDuplicates } from './dedupe';
+import type { RawItem } from './types';
 
 function raw(title: string, url: string, sourceName: string, categories: RawItem['categories'] = ['national']): RawItem {
   return { title, url, sourceName, publishedAt: 1_000, categories };
@@ -25,7 +25,7 @@ test('near-duplicate titles at or above threshold merge and list every source', 
   assert.equal(out.length, 2);
   const merged = out.find((a) => a.sourceLinks.length === 2);
   assert.ok(merged, 'two sources merged into one article');
-  assert.deepEqual(merged.sourceLinks.map((s) => s.sourceName).sort(), ['A', 'B']);
+  assert.deepEqual(merged.sourceLinks.map((s) => s.name ?? s.sourceName ?? '').sort(), ['A', 'B']);
 });
 
 test('unrelated titles stay separate', () => {
@@ -41,7 +41,8 @@ test('merged article carries the union of categories', () => {
     raw('Fed holds rates steady this week', 'https://a.example/1', 'A', ['markets']),
     raw('Fed holds rates steady this week', 'https://b.example/1', 'B', ['world']),
   ]);
-  assert.deepEqual([...out[0].categories].sort(), ['markets', 'world']);
+  const mergedCategories = out[0].categories ?? [];
+  assert.deepEqual([...mergedCategories].sort(), ['markets', 'world']);
 });
 
 test('threshold is configurable', () => {

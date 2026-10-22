@@ -7,11 +7,14 @@
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "icon": "./assets/icon-1024.png",
     "ios": {
-      "bundleIdentifier": "com.example.x2newsstand"
+      "bundleIdentifier": "com.example.x2newsstand",
+      "icon": "./assets/icon-1024.png"
     },
     "android": {
-      "package": "com.example.x2newsstand"
+      "package": "com.example.x2newsstand",
+      "icon": "./assets/icon-1024.png"
     },
     "plugins": [
       "expo-router",
