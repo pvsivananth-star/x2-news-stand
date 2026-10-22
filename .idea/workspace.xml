@@ -1,34 +1,131 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BackgroundAgentGlobalSettings">
+    <option name="selectedModelId" value="gpt-4o-2024-08-06" />
+    <option name="selectedProviderName" value="OpenAI" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="26fd0106-ec00-4b3e-9f65-ce79e7e29213" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/LICENSE" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jsonSchemas.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AGENTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/AGENTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_/Users/paramasivamveerasivanantham/work/IntelliJ/x2/x2-news-stand" value="3L2U1Ckv8wRLXdASBYRGk1CsFZQ" />
+    </persistenceIdMap>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "pvsivananth-star"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;pvsivananth-star&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/pvsivananth-star/x2-news-stand",
-    "accountId": "a6e4ccff-3e4b-474c-94af-9eb22504a04f"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/pvsivananth-star/x2-news-stand&quot;,
+    &quot;accountId&quot;: &quot;a6e4ccff-3e4b-474c-94af-9eb22504a04f&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6,
-  "fromUser": false
-}]]></component>
+}</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0" />
+      <entry key="S5" value="1.0000000000000204" />
+      <entry key="S10" value="1.0000001430280494" />
+      <entry key="S30" value="1.0052948513910283" />
+      <entry key="S60" value="1.103706128014898" />
+      <entry key="M2" value="2.4543111002442624" />
+      <entry key="M5" value="12.94112078247881" />
+      <entry key="M10" value="26.034673954150357" />
+      <entry key="M15" value="33.11661754949023" />
+      <entry key="M30" value="42.2405833348059" />
+      <entry key="H1" value="47.747539484284125" />
+      <entry key="H2" value="50.77454102273352" />
+      <entry key="H4" value="52.36166529057876" />
+      <entry key="D1" value="53.72331810107814" />
+      <entry key="W1" value="53.960384286550365" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="7.085557614417345E-99" />
+      <entry key="S5" value="5.497302220967169E-40" />
+      <entry key="S10" value="2.3446326409412557E-20" />
+      <entry key="S30" value="2.8621448045521935E-7" />
+      <entry key="S60" value="5.34990168559404E-4" />
+      <entry key="M2" value="0.023129854486343047" />
+      <entry key="M5" value="0.22165072706611255" />
+      <entry key="M10" value="0.4707979684175713" />
+      <entry key="M15" value="0.6051871807190639" />
+      <entry key="M30" value="0.7779377743232834" />
+      <entry key="H1" value="0.8820078085387247" />
+      <entry key="H2" value="0.9391527077843753" />
+      <entry key="H4" value="0.9690989153767409" />
+      <entry key="D1" value="0.994782228034916" />
+      <entry key="W1" value="0.9992529317552794" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.9460576467255959" />
+      <entry key="MS500" value="0.9889709163809315" />
+      <entry key="S2" value="0.9972312513520695" />
+      <entry key="S5" value="0.9988915792637001" />
+      <entry key="S10" value="0.999445777560016" />
+      <entry key="S30" value="1.0050926826047328" />
+      <entry key="S60" value="1.104013221555465" />
+      <entry key="M2" value="2.4768795405329267" />
+      <entry key="M5" value="13.161447188197828" />
+      <entry key="M10" value="26.504156654057837" />
+      <entry key="M15" value="33.72069565651137" />
+      <entry key="M30" value="43.017817992399216" />
+      <entry key="H1" value="48.6291511079286" />
+      <entry key="H2" value="51.713483401670246" />
+      <entry key="H4" value="53.33065583731592" />
+      <entry key="D1" value="54.71808180982504" />
+      <entry key="W1" value="54.959634561309834" />
+    </decayedShown>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6,
+  &quot;fromUser&quot;: false
+}</component>
   <component name="ProjectId" id="3L2TjqhzEVBbNDV1XjL2EdDkOeG" />
+  <component name="ProjectSessionTemplates">
+    <option name="panelTemplate">
+      <template>
+        <option name="modeId" value="plan" />
+        <option name="model">
+          <model>
+            <option name="modelProviderName" value="OpenAI" />
+            <option name="modelType" value="byok_id" />
+            <option name="modelValue" value="gpt-4o-2024-08-06" />
+          </model>
+        </option>
+        <option name="targetType" value="BACKGROUND" />
+        <option name="worktreeMode" value="WORKSPACE" />
+      </template>
+    </option>
+  </component>
   <component name="ProjectViewState">
     <option name="autoscrollToSource" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -37,13 +134,20 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
+    "copilot.chat.legacySessionMetadata.migrated": "true",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/paramasivamveerasivanantham/work/IntelliJ/x2/x2-news-stand",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm"
   }
 }]]></component>
@@ -64,5 +168,8 @@
       <updated>1792651302087</updated>
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
 </project>
