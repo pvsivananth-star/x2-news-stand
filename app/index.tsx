@@ -106,7 +106,7 @@ export default function HomeScreen() {
     );
   };
 
-  const refreshStatus = `Last updated ${new Date(lastRefreshedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  const refreshStatus = new Date(lastRefreshedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   const handleCategoryPress = (categoryId: CategoryId) => {
     setActiveCategory(categoryId);
@@ -138,7 +138,7 @@ export default function HomeScreen() {
             </Pressable>
           </Link>
 
-          <Text style={[styles.title, { color: palette.title }]}>X2 News</Text>
+          <Text style={[styles.title, { color: palette.title }]} numberOfLines={1} ellipsizeMode="tail">X2 News</Text>
         </View>
 
         <View style={styles.headerActions}>
@@ -238,14 +238,15 @@ const styles = StyleSheet.create({
   titleWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
     minWidth: 0,
-    flexShrink: 1,
+    flex: 1,
+    marginRight: 8,
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
     marginLeft: 8,
     flexShrink: 0,
   },
@@ -256,10 +257,13 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   title: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: '800',
     flexShrink: 1,
-    maxWidth: '68%',
+    lineHeight: 24,
+    includeFontPadding: false,
+    textAlign: 'left',
+    minWidth: 0,
   },
   iconButton: {
     width: 38,
@@ -279,7 +283,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   bannerText: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '600',
     flexShrink: 1,
   },

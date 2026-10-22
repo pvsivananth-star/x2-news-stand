@@ -59,6 +59,8 @@ export interface Article {
   category?: CategoryId;
   categories?: CategoryId[];
   bookmarked?: boolean;
+  imageUrl?: string;
+  content?: string;
 }
 
 export interface Source {

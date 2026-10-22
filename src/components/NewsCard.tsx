@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Article } from '@/src/domain/types';
 
 interface NewsCardProps {
@@ -27,7 +27,7 @@ function formatRelativeTime(timestamp: number): string {
 }
 
 export function NewsCard({ article, expanded, onToggleExpand, onToggleBookmark, onOpenSource, darkMode }: NewsCardProps) {
-  const sourceCount = article.sourceLinks.length;
+  const primarySource = article.sourceLinks[0]?.url || article.url || 'https://example.com';
   const colors = darkMode
     ? {
         card: '#0f172a',
@@ -38,7 +38,6 @@ export function NewsCard({ article, expanded, onToggleExpand, onToggleBookmark, 
         body: '#dfe7f5',
         muted: '#94a3b8',
         accent: '#7dd3fc',
-        action: '#1d4ed8',
         button: '#111827',
       }
     : {
@@ -50,11 +49,11 @@ export function NewsCard({ article, expanded, onToggleExpand, onToggleBookmark, 
         body: '#334155',
         muted: '#64748b',
         accent: '#0369a1',
-        action: '#dbeafe',
         button: '#f1f5f9',
       };
 
-  const paragraphs = article.summary ? article.summary.split('\n\n').filter(Boolean) : [''];
+  const paragraphs = (article.content || article.summary || '').split('\n\n').filter(Boolean);
+  const storyText = paragraphs.length > 0 ? paragraphs : [''];
 
   return (
     <Pressable onPress={onToggleExpand} accessibilityRole="button" accessibilityLabel={`Toggle article details for ${article.title}`}>
@@ -65,69 +64,60 @@ export function NewsCard({ article, expanded, onToggleExpand, onToggleBookmark, 
             <Text style={[styles.timeText, { color: colors.time }]}>{formatRelativeTime(article.publishedAt)}</Text>
           </View>
 
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={article.bookmarked ? 'Remove bookmark' : 'Add bookmark'}
-            onPress={(event) => {
-              event.stopPropagation();
-              onToggleBookmark();
-            }}
-            style={[styles.iconButton, { backgroundColor: colors.button }]}
-          >
-            <Text style={[styles.iconText, { color: darkMode ? '#fbbf24' : '#d97706' }]}>{article.bookmarked ? '★' : '☆'}</Text>
-          </Pressable>
+          <View style={styles.headerActions}>
+            {article.sourceLinks.length > 0 && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Open original story: ${primarySource}`}
+                onPress={(event) => {
+                  event.stopPropagation();
+                  onOpenSource(primarySource);
+                }}
+                style={[styles.sourceLinkButton, { backgroundColor: colors.button }]}
+              >
+                <Text style={[styles.sourceLinkText, { color: colors.accent }]}>{article.sourceName || 'Source'}</Text>
+              </Pressable>
+            )}
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={article.bookmarked ? 'Remove bookmark' : 'Add bookmark'}
+              onPress={(event) => {
+                event.stopPropagation();
+                onToggleBookmark();
+              }}
+              style={[styles.iconButton, { backgroundColor: colors.button }]}
+            >
+              <Text style={[styles.iconText, { color: darkMode ? '#fbbf24' : '#d97706' }]}>{article.bookmarked ? '★' : '☆'}</Text>
+            </Pressable>
+          </View>
         </View>
 
         <Text style={[styles.titleText, { color: colors.text }]}>{article.title}</Text>
 
         {!expanded ? (
           <Text style={[styles.summaryText, { color: colors.body }]} numberOfLines={4}>
-            {paragraphs[0]}
+            {storyText[0]}
           </Text>
         ) : (
           <View style={styles.expandedView}>
-            {paragraphs.map((paragraph, index) => (
+            {article.imageUrl ? (
+              <Image
+                source={{ uri: article.imageUrl }}
+                style={styles.articleImage}
+                resizeMode="cover"
+              />
+            ) : null}
+
+            {storyText.map((paragraph, index) => (
               <Text key={`${article.id}-p-${index}`} style={[styles.summaryText, { color: colors.body }]}>
                 {paragraph}
               </Text>
             ))}
-
-            {article.sourceLinks.length > 0 && (
-              <View style={styles.linkGroup}>
-                {article.sourceLinks.map((entry) => (
-                  <Pressable
-                    key={`${article.id}-${entry.url}`}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Open source: ${entry.name ?? 'source'}`}
-                    onPress={(event) => {
-                      event.stopPropagation();
-                      onOpenSource(entry.url || article.url || 'https://example.com');
-                    }}
-                    style={styles.linkButton}
-                  >
-                    <Text style={[styles.linkText, { color: colors.accent }]}>{entry.name ?? 'Source'}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            )}
           </View>
         )}
 
-        <View style={styles.footerRow}>
-          <Text style={[styles.sourceMetaText, { color: colors.muted }]}>{sourceCount > 1 ? `+${sourceCount - 1} sources` : 'Source'}</Text>
-
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={expanded ? 'Collapse article' : 'Expand article'}
-            onPress={(event) => {
-              event.stopPropagation();
-              onToggleExpand();
-            }}
-            style={[styles.expandButton, { backgroundColor: colors.action }]}
-          >
-            <Text style={[styles.expandText, { color: darkMode ? '#f8fafc' : '#0f172a' }]}>{expanded ? '←' : '→'}</Text>
-          </Pressable>
-        </View>
+        <View style={styles.footerRow} />
       </View>
     </Pressable>
   );
@@ -155,6 +145,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 9,
+    flexShrink: 1,
+    minWidth: 0,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexShrink: 0,
   },
   sourceText: {
     fontSize: 12,
@@ -165,6 +163,19 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 12,
     fontWeight: '500',
+  },
+  sourceLinkButton: {
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sourceLinkText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+    textTransform: 'uppercase',
   },
   iconButton: {
     width: 32,
@@ -191,6 +202,13 @@ const styles = StyleSheet.create({
   expandedView: {
     marginTop: 4,
   },
+  articleImage: {
+    width: '100%',
+    height: 180,
+    borderRadius: 12,
+    marginBottom: 12,
+    backgroundColor: '#cbd5e1',
+  },
   linkGroup: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -210,21 +228,31 @@ const styles = StyleSheet.create({
   footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
+    marginTop: 8,
+  },
+  footerMeta: {
+    flex: 1,
+  },
+  urlFooter: {
+    minWidth: 0,
+    maxWidth: '70%',
+    alignItems: 'flex-end',
   },
   sourceMetaText: {
     fontSize: 12,
     fontWeight: '600',
+    textAlign: 'right',
+    flexShrink: 1,
   },
-  expandButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: 'center',
-    justifyContent: 'center',
+  sourceUrlButton: {
+    marginTop: 10,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
   },
-  expandText: {
-    fontSize: 22,
-    fontWeight: '700',
+  sourceUrlText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

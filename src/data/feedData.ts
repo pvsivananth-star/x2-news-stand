@@ -30,8 +30,11 @@ export const FEED_ARTICLES: Article[] = [
     id: 'article-1',
     title: 'Tamil Nadu braces for another heatwave as districts warn of water stress',
     url: 'https://tamil.oneindia.com/news/tamil-nadu/heatwave-water-stress-warning-2026-123456.html',
+    content:
+      'Officials said daytime temperatures remain above seasonal norms in several districts, with rural water boards prioritising emergency supplies and public health messaging.\n\nThe warning comes after a steady rise in power demand and a tighter water supply outlook in the region, prompting officials to reopen emergency cooling shelters and raise awareness for vulnerable residents.\n\nLocal authorities said the combination of sparse rainfall and prolonged heat could intensify fatigue and dehydration risks, especially for children, the elderly, and outdoor workers.',
     summary:
       'Officials said daytime temperatures remain above seasonal norms in several districts, with rural water boards prioritising emergency supplies and public health messaging.\n\nThe warning comes after a steady rise in power demand and a tighter water supply outlook in the region, prompting officials to reopen emergency cooling shelters and raise awareness for vulnerable residents.\n\nLocal authorities said the combination of sparse rainfall and prolonged heat could intensify fatigue and dehydration risks, especially for children, the elderly, and outdoor workers.',
+    imageUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
     sourceName: 'Oneindia Tamil',
     sourceLinks: [{ name: 'Oneindia Tamil', url: 'https://tamil.oneindia.com/news/tamil-nadu/heatwave-water-stress-warning-2026-123456.html' }],
     publishedAt: now - 1000 * 60 * 25,
@@ -42,8 +45,11 @@ export const FEED_ARTICLES: Article[] = [
     id: 'article-2',
     title: 'India’s startup funding shows signs of a steadier second half after a volatile quarter',
     url: 'https://www.news18.com/india/startup-funding-steadies-in-second-half-2026-123456',
+    content:
+      'Analysts noted that early-stage rounds remained selective even as larger deals edged back into the market, creating a more cautious but healthier capital environment for founders.\n\nInvestors said better revenue visibility and a narrower focus on efficiency are giving startups a clearer path to funding, particularly in AI, enterprise software, and climate technology.\n\nThe wider market still expects more discipline in pricing and valuations, but the tone is more stable than during the sharper contraction seen earlier in the year.',
     summary:
       'Analysts noted that early-stage rounds remained selective even as larger deals edged back into the market, creating a more cautious but healthier capital environment for founders.\n\nInvestors said better revenue visibility and a narrower focus on efficiency are giving startups a clearer path to funding, particularly in AI, enterprise software, and climate technology.\n\nThe wider market still expects more discipline in pricing and valuations, but the tone is more stable than during the sharper contraction seen earlier in the year.',
+    imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80',
     sourceName: 'News18 India',
     sourceLinks: [{ name: 'News18 India', url: 'https://www.news18.com/india/startup-funding-steadies-in-second-half-2026-123456' }],
     publishedAt: now - 1000 * 60 * 58,
@@ -53,8 +59,11 @@ export const FEED_ARTICLES: Article[] = [
     id: 'article-3',
     title: 'Global markets rally as investors weigh cooling inflation and better earnings',
     url: 'https://www.bbc.com/news/business-64728000',
+    content:
+      'Broad gains across banks, technology, and commodities lifted sentiment after traders priced in a more gradual path for interest rates in major economies.\n\nInvestors were encouraged by steady inflation readings and encouraging company reports, while industrial demand and consumer spending remained resilient in several markets.\n\nThe rally still depends on how central banks respond to the next earnings cycle, but early moves suggest traders are leaning toward a softer landing in growth.',
     summary:
       'Broad gains across banks, technology, and commodities lifted sentiment after traders priced in a more gradual path for interest rates in major economies.\n\nInvestors were encouraged by steady inflation readings and encouraging company reports, while industrial demand and consumer spending remained resilient in several markets.\n\nThe rally still depends on how central banks respond to the next earnings cycle, but early moves suggest traders are leaning toward a softer landing in growth.',
+    imageUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
     sourceName: 'BBC News',
     sourceLinks: [{ name: 'BBC News', url: 'https://www.bbc.com/news/business-64728000' }],
     publishedAt: now - 1000 * 60 * 137,
