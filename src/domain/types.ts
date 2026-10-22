@@ -1,23 +1,46 @@
+/** Categories shown as Settings switches. "district" was removed; local covers the city. */
 export type CategoryId =
-  | 'local' | 'district' | 'national' | 'science'
-  | 'tech' | 'it' | 'market' | 'sports';
+  | 'top-stories'
+  | 'local'
+  | 'national'
+  | 'world'
+  | 'markets'
+  | 'business'
+  | 'technology'
+  | 'science'
+  | 'health-medical'
+  | 'politics'
+  | 'sports'
+  | 'entertainment'
+  | 'lifestyle'
+  | 'viral-trending';
 
-export interface Article {
-  id: string;          // stable hash of canonical URL
-  title: string;
-  teaser: string;      // plain text, HTML stripped
-  url: string;         // link to original publisher
+export const ALL_CATEGORIES: readonly CategoryId[] = [
+  'top-stories', 'local', 'national', 'world', 'markets', 'business', 'technology',
+  'science', 'health-medical', 'politics', 'sports', 'entertainment', 'lifestyle',
+  'viral-trending',
+];
+
+export interface SourceLink {
   sourceName: string;
-  publishedAt: number; // epoch ms
-  category: CategoryId;
+  url: string;
 }
 
-export interface Source {
-  id: string;
-  name: string;
-  language: string;
-  category: CategoryId;
-  type: 'rss' | 'google-news-search';
+/** One item as published by a single feed. Text is kept exactly as published. */
+export interface RawItem {
+  title: string;
   url: string;
-  status: 'unverified' | 'verified' | 'disabled';
+  sourceName: string;
+  publishedAt: number; // epoch ms
+  categories: CategoryId[];
+}
+
+/** One card after duplicate merging. Every card credits its sources and links to them. */
+export interface Article {
+  id: string;
+  title: string;
+  url: string;
+  sourceLinks: SourceLink[];
+  publishedAt: number;
+  categories: CategoryId[];
 }
