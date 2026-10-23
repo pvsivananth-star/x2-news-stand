@@ -11,6 +11,7 @@ interface NewsCardProps {
   onToggleExpand: () => void;
   onToggleBookmark: () => void;
   onOpenSource: (url: string) => void;
+  onTranslate?: () => void;
   darkMode: boolean;
 }
 
@@ -38,6 +39,7 @@ const NewsCardComponent = ({
   onToggleExpand,
   onToggleBookmark,
   onOpenSource,
+  onTranslate,
   darkMode,
 }: NewsCardProps) => {
   const primarySource = article.sourceLinks[0]?.url || article.url || 'https://example.com';
@@ -136,6 +138,20 @@ const NewsCardComponent = ({
             >
               <Text style={[styles.iconText, { color: darkMode ? '#fbbf24' : '#d97706' }]}>{article.bookmarked ? '★' : '☆'}</Text>
             </Pressable>
+
+            {onTranslate ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Translate article"
+                onPress={(event) => {
+                  event.stopPropagation();
+                  onTranslate();
+                }}
+                style={[styles.translateButton, { backgroundColor: colors.button }]}
+              >
+                <Text style={[styles.translateText, { color: colors.accent }]}>Translate</Text>
+              </Pressable>
+            ) : null}
           </View>
 
           <View style={styles.metaBlockRight}>
@@ -179,6 +195,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexShrink: 1,
+    gap: 8,
   },
   metaBlockRight: {
     flexDirection: 'row',
@@ -199,6 +216,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sourceLinkText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+    textTransform: 'uppercase',
+  },
+  translateButton: {
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  translateText: {
     fontSize: 10,
     fontWeight: '700',
     letterSpacing: 0.3,

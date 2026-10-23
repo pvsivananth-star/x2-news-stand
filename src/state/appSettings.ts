@@ -5,10 +5,60 @@ import { shouldApplyHydratedTheme } from '@/src/state/themeHydration';
 
 export type AppTheme = 'system' | 'light' | 'dark';
 
+export interface TranslationLanguageOption {
+  code: string;
+  label: string;
+}
+
+export const TRANSLATION_LANGUAGE_OPTIONS: TranslationLanguageOption[] = [
+  { code: '', label: 'None' },
+  { code: 'ta', label: 'Tamil' },
+  { code: 'hi', label: 'Hindi' },
+  { code: 'bn', label: 'Bengali' },
+  { code: 'gu', label: 'Gujarati' },
+  { code: 'mr', label: 'Marathi' },
+  { code: 'pa', label: 'Punjabi' },
+  { code: 'kn', label: 'Kannada' },
+  { code: 'ml', label: 'Malayalam' },
+  { code: 'or', label: 'Odia' },
+  { code: 'as', label: 'Assamese' },
+  { code: 'te', label: 'Telugu' },
+  { code: 'ur', label: 'Urdu' },
+  { code: 'en', label: 'English' },
+  { code: 'ar', label: 'Arabic' },
+  { code: 'zh-CN', label: 'Chinese (Simplified)' },
+  { code: 'zh-TW', label: 'Chinese (Traditional)' },
+  { code: 'es', label: 'Spanish' },
+  { code: 'fr', label: 'French' },
+  { code: 'de', label: 'German' },
+  { code: 'ja', label: 'Japanese' },
+  { code: 'ko', label: 'Korean' },
+  { code: 'ru', label: 'Russian' },
+  { code: 'pt', label: 'Portuguese' },
+  { code: 'it', label: 'Italian' },
+  { code: 'tr', label: 'Turkish' },
+  { code: 'nl', label: 'Dutch' },
+  { code: 'id', label: 'Indonesian' },
+  { code: 'vi', label: 'Vietnamese' },
+  { code: 'th', label: 'Thai' },
+  { code: 'fa', label: 'Persian' },
+  { code: 'uk', label: 'Ukrainian' },
+  { code: 'he', label: 'Hebrew' },
+  { code: 'fil', label: 'Filipino' },
+  { code: 'sw', label: 'Swahili' },
+  { code: 'af', label: 'Afrikaans' },
+  { code: 'pl', label: 'Polish' },
+  { code: 'cs', label: 'Czech' },
+  { code: 'el', label: 'Greek' },
+  { code: 'hu', label: 'Hungarian' },
+  { code: 'ro', label: 'Romanian' },
+];
+
 export interface AppSettingsState {
   refreshIntervalMinutes: number;
   theme: AppTheme;
   enabledCategories: Record<CategoryId, boolean>;
+  translationLanguage: string;
 }
 
 export const DEFAULT_CATEGORY_STATE: Record<CategoryId, boolean> = {
@@ -33,11 +83,16 @@ export const DEFAULT_SETTINGS: AppSettingsState = {
   refreshIntervalMinutes: 10,
   theme: 'system',
   enabledCategories: { ...DEFAULT_CATEGORY_STATE },
+  translationLanguage: '',
 };
 
 const SETTINGS_FILE = `${FileSystem.documentDirectory ?? ''}x2-news-stand-settings.json`;
 
-export const appSettings: AppSettingsState = { ...DEFAULT_SETTINGS, enabledCategories: { ...DEFAULT_CATEGORY_STATE } };
+export const appSettings: AppSettingsState = {
+  ...DEFAULT_SETTINGS,
+  enabledCategories: { ...DEFAULT_CATEGORY_STATE },
+  translationLanguage: DEFAULT_SETTINGS.translationLanguage,
+};
 
 const themeListeners = new Set<() => void>();
 let themeRevision = 0;
@@ -71,6 +126,7 @@ async function readPersistedSettings(): Promise<AppSettingsState> {
         ...DEFAULT_CATEGORY_STATE,
         ...(parsed.enabledCategories ?? {}),
       },
+      translationLanguage: typeof parsed.translationLanguage === 'string' ? parsed.translationLanguage : DEFAULT_SETTINGS.translationLanguage,
     };
   } catch {
     return { ...DEFAULT_SETTINGS, enabledCategories: { ...DEFAULT_CATEGORY_STATE } };
@@ -85,6 +141,7 @@ export async function hydrateSettings(): Promise<void> {
     appSettings.theme = persisted.theme;
   }
   appSettings.enabledCategories = { ...DEFAULT_CATEGORY_STATE, ...persisted.enabledCategories };
+  appSettings.translationLanguage = persisted.translationLanguage;
   notifyThemeChange();
 }
 
@@ -93,6 +150,7 @@ export async function persistSettings(): Promise<void> {
     refreshIntervalMinutes: appSettings.refreshIntervalMinutes,
     theme: appSettings.theme,
     enabledCategories: appSettings.enabledCategories,
+    translationLanguage: appSettings.translationLanguage,
   });
   const write = persistenceQueue.then(
     () => FileSystem.writeAsStringAsync(SETTINGS_FILE, serialized),
@@ -119,6 +177,11 @@ export async function setTheme(theme: AppTheme): Promise<void> {
 
 export function setEnabledCategories(enabledCategories: Record<CategoryId, boolean>): void {
   appSettings.enabledCategories = { ...DEFAULT_CATEGORY_STATE, ...enabledCategories };
+  void persistSettings();
+}
+
+export function setTranslationLanguage(languageCode: string): void {
+  appSettings.translationLanguage = languageCode;
   void persistSettings();
 }
 
