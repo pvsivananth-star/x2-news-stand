@@ -19,7 +19,11 @@ export function canonicalUrl(raw: string): string {
   }
   url.protocol = 'https:';
   url.hash = '';
-  for (const key of [...url.searchParams.keys()]) {
+  const keys: string[] = [];
+  for (const key of url.searchParams.keys() as unknown as Iterable<string>) {
+    keys.push(key);
+  }
+  for (const key of keys) {
     if (TRACKING_PARAMS.test(key)) url.searchParams.delete(key);
   }
   let out = url.toString();

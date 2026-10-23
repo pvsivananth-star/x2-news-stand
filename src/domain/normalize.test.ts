@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { canonicalUrl, titleTokens, jaccard } from './normalize.ts';
+import { canonicalUrl, titleTokens, jaccard } from './normalize';
 
 test('canonicalUrl removes tracking params and fragments, forces https, drops trailing slash', () => {
   assert.equal(

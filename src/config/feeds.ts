@@ -1,5 +1,5 @@
-import { ALL_CATEGORIES } from '../domain/types.ts';
-import type { CategoryId } from '../domain/types.ts';
+import { ALL_CATEGORIES } from '../domain/types';
+import type { CategoryId } from '../domain/types';
 
 export type FeedStatus = 'working' | 'tracker-listed' | 'candidate' | 'pending';
 
@@ -55,7 +55,9 @@ export function parseFeedConfig(raw: unknown): FeedConfig {
       throw new Error(`${where}.categories: must be a non-empty array`);
     }
     for (const c of f.categories) {
-      if (!ALL_CATEGORIES.includes(c as CategoryId)) throw new Error(`${where}.categories: unknown category "${String(c)}"`);
+      if (!ALL_CATEGORIES.includes(c as CategoryId)) {
+        throw new Error(`${where}.categories: unknown category "${String(c)}"`);
+      }
     }
     if (f.fallback !== undefined && typeof f.fallback !== 'boolean') {
       throw new Error(`${where}.fallback: must be true or false`);

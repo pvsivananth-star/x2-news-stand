@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { parseFeedConfig, activeFeeds } from './feeds.ts';
+import { parseFeedConfig, activeFeeds } from './feeds';
 
 const feedsPath = fileURLToPath(new URL('../../feeds.json', import.meta.url));
 const raw: unknown = JSON.parse(readFileSync(feedsPath, 'utf8'));

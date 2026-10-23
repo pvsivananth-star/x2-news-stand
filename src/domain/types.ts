@@ -1,7 +1,7 @@
-/** Categories shown as Settings switches. "district" was removed; local covers the city. */
 export type CategoryId =
   | 'top-stories'
   | 'local'
+  | 'district'
   | 'national'
   | 'world'
   | 'markets'
@@ -16,31 +16,59 @@ export type CategoryId =
   | 'viral-trending';
 
 export const ALL_CATEGORIES: readonly CategoryId[] = [
-  'top-stories', 'local', 'national', 'world', 'markets', 'business', 'technology',
-  'science', 'health-medical', 'politics', 'sports', 'entertainment', 'lifestyle',
+  'top-stories',
+  'local',
+  'district',
+  'national',
+  'world',
+  'markets',
+  'business',
+  'technology',
+  'science',
+  'health-medical',
+  'politics',
+  'sports',
+  'entertainment',
+  'lifestyle',
   'viral-trending',
 ];
 
 export interface SourceLink {
-  sourceName: string;
+  name?: string;
+  sourceName?: string;
   url: string;
 }
 
-/** One item as published by a single feed. Text is kept exactly as published. */
 export interface RawItem {
   title: string;
   url: string;
   sourceName: string;
-  publishedAt: number; // epoch ms
+  publishedAt: number;
   categories: CategoryId[];
+  summary?: string;
 }
 
-/** One card after duplicate merging. Every card credits its sources and links to them. */
 export interface Article {
   id: string;
   title: string;
-  url: string;
+  url?: string;
+  summary?: string;
+  sourceName?: string;
   sourceLinks: SourceLink[];
   publishedAt: number;
-  categories: CategoryId[];
+  category?: CategoryId;
+  categories?: CategoryId[];
+  bookmarked?: boolean;
+  imageUrl?: string;
+  content?: string;
+}
+
+export interface Source {
+  id: string;
+  name: string;
+  language: string;
+  category: CategoryId;
+  type: 'rss' | 'google-news-search';
+  url: string;
+  status: 'unverified' | 'verified' | 'disabled';
 }

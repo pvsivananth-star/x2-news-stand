@@ -21,7 +21,7 @@ Status: Draft v2. Items marked **OPEN** need an owner decision. Items marked **U
 - Full-article reading inside the app (publisher pages open in the in-app browser instead).
 - Instagram, TikTok, or other social-media content. Viral coverage comes from news publishers only.
 - Astrology and horoscope content.
-- AI-generated or rewritten text of any kind. Titles are shown as published; no summaries are written.
+- AI-generated paraphrases. Expanded-card summaries are extractive and use only text from the original publisher page.
 - Accounts, cross-device sync, push notifications.
 - GPS location.
 - Translation of content (deferred to v1.1).
@@ -111,10 +111,11 @@ All 14 are on by default.
 - A category that is switched off contributes no articles, so its items never receive a score.
 
 ### 4.4 Text as published
-- Titles are shown exactly as the publisher's feed provides them. Do not rewrite, summarise, translate, shorten, combine, or otherwise change any text.
-- Only markup entities such as `&amp;` may be decoded for display. Wording must never change (see O9).
-- Teasers and article descriptions are not shown. Cards use titles only.
-- Article bodies are never fetched or stored.
+- Titles are shown exactly as the publisher's feed provides them.
+- Cards show the publisher-provided feed description under the headline when available; descriptions are not rewritten.
+- When a card is expanded, the app may fetch the linked public article page to create a concise extractive summary from its text and select its article image. The summary must not add facts or translate the source.
+- The article body is processed in memory only; only the generated summary and image URL are kept in the active UI state.
+- If the source page cannot be fetched or has insufficient article text, show an explicit unavailable/retry state rather than inventing content.
 
 ### 4.5 Viral and trending
 - Sources: publisher feeds that cover viral and trending stories (for example News18 viral), and keyless Google News search feeds for trending topics.
@@ -255,7 +256,7 @@ The v1 feed list is in `feeds.json` (last checked 22 Oct 2026). Sections 5.2 and
 | A6 | Card shows headline as published, source credit with link, time, and "→" | Visual check |
 | A7 | "→" expands inline; source links appear at the end | Tap test |
 | A8 | Source link opens the publisher page in the in-app browser | Tap test |
-| A9 | No text is rewritten, summarised, or translated | Compare 10 cards with the feed |
+| A9 | Headlines remain as published; expanded summaries use only source-page text and are not translated | Compare 10 cards with the feed |
 | A10 | Duplicate stories merge with "+N sources" | Unit test with fixture feeds |
 | A11 | Ranking matches the formula in 4.3 | Unit test |
 | A12 | Astrology items never appear | Check all sources and fixtures |
