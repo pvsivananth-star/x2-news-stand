@@ -52,7 +52,6 @@ const NATIVE_LANGUAGE_MAP: Record<string, TranslateLanguage> = {
   ja: TranslateLanguage.JAPANESE,
   kn: TranslateLanguage.KANNADA,
   ko: TranslateLanguage.KOREAN,
-  ml: TranslateLanguage.MALAY,
   mr: TranslateLanguage.MARATHI,
   ms: TranslateLanguage.MALAY,
   nl: TranslateLanguage.DUTCH,
@@ -89,7 +88,7 @@ const mapToNativeTargetLanguage = (targetLanguage: string): TranslateLanguage | 
   return NATIVE_LANGUAGE_MAP[shortCode] ?? null;
 };
 
-const detectSourceLanguage = (text: string): TranslateLanguage => {
+const detectScriptLanguage = (text: string): TranslateLanguage | null => {
   const normalizedText = text.normalize('NFKC');
 
   if (/[\u0B80-\u0BFF]/.test(normalizedText)) {
@@ -112,10 +111,6 @@ const detectSourceLanguage = (text: string): TranslateLanguage => {
     return TranslateLanguage.KANNADA;
   }
 
-  if (/[\u0D00-\u0D7F]/.test(normalizedText)) {
-    return TranslateLanguage.MALAY;
-  }
-
   if (/[\u0600-\u06FF]/.test(normalizedText)) {
     return TranslateLanguage.ARABIC;
   }
@@ -136,8 +131,11 @@ const detectSourceLanguage = (text: string): TranslateLanguage => {
     return TranslateLanguage.RUSSIAN;
   }
 
-  return TranslateLanguage.ENGLISH;
+  return null;
 };
+
+const detectSourceLanguage = (text: string): TranslateLanguage =>
+  detectScriptLanguage(text) ?? TranslateLanguage.ENGLISH;
 
 const isProviderWarningText = (value: string | null | undefined): boolean => {
   if (!value) {
@@ -172,6 +170,11 @@ const toTranslatedString = (value: unknown): string | null => {
 const translateWithNative = async (text: string, targetLanguage: string): Promise<string | null> => {
   const nativeTargetLanguage = mapToNativeTargetLanguage(targetLanguage);
   if (!nativeTargetLanguage) {
+    return null;
+  }
+
+  // ML Kit has no Malayalam model, so skip the native step for Malayalam text.
+  if (/[\u0D00-\u0D7F]/.test(text)) {
     return null;
   }
 
@@ -277,6 +280,12 @@ export const translateText = async (text: string, targetLanguage: string): Promi
 
   const normalizedTarget = normalizeLanguageCode(targetLanguage);
   if (!normalizedTarget) {
+    return text;
+  }
+
+  // Already in the target language (detected by script): nothing to translate.
+  const nativeTarget = mapToNativeTargetLanguage(normalizedTarget);
+  if (nativeTarget && nativeTarget === detectScriptLanguage(cleanText)) {
     return text;
   }
 
