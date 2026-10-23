@@ -1,6 +1,7 @@
 import type { Article, CategoryId } from '@/src/domain/types';
 import feedFile from '../../feeds.json';
 import { activeFeeds, parseFeedConfig } from '@/src/config/feeds';
+import { extractRssDescription } from '@/src/services/rssDescription';
 
 export interface CategoryOption {
   id: CategoryId;
@@ -49,9 +50,77 @@ const decodeXmlText = (value: string | null | undefined): string => {
   return text.trim();
 };
 
+const stripHtml = (value: string | null | undefined): string => {
+  if (!value) return '';
+
+  let text = decodeXmlText(value)
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return text;
+};
+
 const firstMatch = (source: string, pattern: RegExp): string => {
   const match = source.match(pattern);
   return match ? decodeXmlText(match[1]) : '';
+};
+
+const extractArticleText = (itemXml: string): string => {
+  const candidates = [
+    /<(?:content:encoded|content)\b[^>]*>([\s\S]*?)<\/(?:content:encoded|content)>/i,
+    /<(?:description|summary)\b[^>]*>([\s\S]*?)<\/(?:description|summary)>/i,
+  ];
+
+  for (const pattern of candidates) {
+    const value = firstMatch(itemXml, pattern);
+    if (value) {
+      const stripped = stripHtml(value);
+      if (stripped) return stripped;
+    }
+  }
+
+  return '';
+};
+
+const extractImageUrl = (itemXml: string): string | undefined => {
+  const patterns = [
+    /<(?:media:content|media:thumbnail|enclosure)\b[^>]*\b(?:url|src)=["']([^"']+)["'][^>]*>/i,
+    /<img\b[^>]*\b(?:src|data-src)=["']([^"']+)["'][^>]*>/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = itemXml.match(pattern);
+    if (match) {
+      const candidate = decodeXmlText(match[1]).replace(/\s+/g, '');
+      if (candidate) return candidate;
+    }
+  }
+
+  return undefined;
+};
+
+const buildParagraphs = (text: string, maxParagraphs = 4): string[] => {
+  const cleaned = text.replace(/\s+/g, ' ').trim();
+  if (!cleaned) return [];
+
+  const sentences = cleaned.split(/(?<=[.!?])\s+/).filter(Boolean);
+  if (sentences.length === 0) return [cleaned];
+  if (sentences.length === 1) return [sentences[0]];
+
+  const targetParagraphs = Math.min(maxParagraphs, Math.max(2, Math.min(sentences.length, 4)));
+  const paragraphs: string[] = [];
+  const size = Math.ceil(sentences.length / targetParagraphs);
+
+  for (let index = 0; index < sentences.length; index += size) {
+    const chunk = sentences.slice(index, index + size).join(' ').trim();
+    if (chunk) paragraphs.push(chunk);
+    if (paragraphs.length >= maxParagraphs) break;
+  }
+
+  return paragraphs.length > 0 ? paragraphs : [cleaned];
 };
 
 const parsePublishedAt = (rawDate: string | null | undefined, fallbackIndex: number): number => {
@@ -84,18 +153,25 @@ const parseRssItems = (xml: string, feedName: string, feedCategories: CategoryId
 
     if (!title || !articleUrl) continue;
 
+    const storyText = extractArticleText(itemXml);
+    const contentText = storyText || title;
+    const paragraphs = buildParagraphs(contentText, 4);
+    const imageUrl = extractImageUrl(itemXml);
+    const summaryText = extractRssDescription(itemXml);
     const category = toArticleCategory(feedCategories, index);
     articles.push({
       id: `${feedName}-${articleUrl}`,
       title,
       url: articleUrl,
-      summary: `${title} — ${feedName}`,
+      summary: summaryText,
       sourceName: feedName,
       sourceLinks: [{ name: feedName, url: articleUrl }],
       publishedAt: parsePublishedAt(publishedRaw, index),
       category,
       categories: [category],
       bookmarked: false,
+      imageUrl,
+      content: paragraphs.join('\n\n'),
     });
   }
 

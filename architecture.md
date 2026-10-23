@@ -4,6 +4,7 @@
 ```
 UI (screens, components)
   -> application contracts (INewsService, IPersistenceService)
+  -> custom hooks
   -> services (cache, refresh orchestration)
   -> source adapters (RSS, Google News search)
   -> external feeds
@@ -17,10 +18,12 @@ UI (screens, components)
 5. Each category has independent state. Refreshing one never changes another.
 6. Pure functions (normalize, dedupe, rank) have no UI or storage dependencies.
 7. Never fabricate items. Missing data shows an empty or unavailable state.
+8. Article detail requests and summary extraction run in the service layer; raw article bodies are not persisted.
 
 ## Data flow
 ```
 Feed URL -> Adapter -> normalize -> dedupe -> rank -> cache -> Zustand store -> UI
+Article URL -> article-details service -> extractive summary + image URL -> hook -> UI
 ```
 
 ## Folders

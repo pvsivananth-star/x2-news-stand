@@ -1,9 +1,12 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Article } from '@/src/domain/types';
+import type { ArticleDetailsState } from '@/src/hooks/useArticleDetails';
 
 interface NewsCardProps {
   article: Article;
   expanded: boolean;
+  details?: ArticleDetailsState;
+  onRetryDetails: () => void;
   onToggleExpand: () => void;
   onToggleBookmark: () => void;
   onOpenSource: (url: string) => void;
@@ -26,7 +29,16 @@ function formatRelativeTime(timestamp: number): string {
   return `${diffDays}d ago`;
 }
 
-export function NewsCard({ article, expanded, onToggleExpand, onToggleBookmark, onOpenSource, darkMode }: NewsCardProps) {
+export function NewsCard({
+  article,
+  expanded,
+  details,
+  onRetryDetails,
+  onToggleExpand,
+  onToggleBookmark,
+  onOpenSource,
+  darkMode,
+}: NewsCardProps) {
   const primarySource = article.sourceLinks[0]?.url || article.url || 'https://example.com';
 
   const colors = darkMode
@@ -49,8 +61,11 @@ export function NewsCard({ article, expanded, onToggleExpand, onToggleBookmark, 
         button: '#f1f5f9',
       };
 
-  const paragraphs = (article.content || article.summary || '').split('\n\n').filter(Boolean);
+  const summaryText =
+    details?.status === 'success' ? details.details.summary : article.content || article.summary || '';
+  const paragraphs = summaryText.split('\n\n').filter(Boolean);
   const storyText = paragraphs.length > 0 ? paragraphs : [''];
+  const descriptionText = article.summary?.trim() ?? '';
 
   return (
     <Pressable onPress={onToggleExpand} accessibilityRole="button" accessibilityLabel={`Toggle article details for ${article.title}`}>
@@ -58,24 +73,52 @@ export function NewsCard({ article, expanded, onToggleExpand, onToggleBookmark, 
         <Text style={[styles.titleText, { color: colors.text }]}>{article.title}</Text>
 
         {!expanded ? (
-          <Text style={[styles.summaryText, { color: colors.body }]} numberOfLines={4}>
-            {storyText[0]}
-          </Text>
+          descriptionText ? (
+            <Text style={[styles.summaryText, { color: colors.body }]} numberOfLines={3}>
+              {descriptionText}
+            </Text>
+          ) : null
         ) : (
           <View style={styles.expandedView}>
-            {article.imageUrl ? (
+            {(details?.status === 'success' ? details.details.imageUrl : undefined) ?? article.imageUrl ? (
               <Image
-                source={{ uri: article.imageUrl }}
+                source={{
+                  uri:
+                    (details?.status === 'success' ? details.details.imageUrl : undefined) ??
+                    article.imageUrl,
+                }}
                 style={styles.articleImage}
                 resizeMode="cover"
               />
             ) : null}
 
-            {storyText.map((paragraph, index) => (
-              <Text key={`${article.id}-p-${index}`} style={[styles.summaryText, { color: colors.body }]}>
-                {paragraph}
-              </Text>
-            ))}
+            {details?.status === 'loading' ? (
+              <Text style={[styles.summaryText, { color: colors.body }]}>Loading the original article summary…</Text>
+            ) : details?.status === 'error' ? (
+              <View>
+                <Text style={[styles.summaryText, { color: colors.body }]}>{details.message}</Text>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={(event) => {
+                    event.stopPropagation();
+                    onRetryDetails();
+                  }}
+                >
+                  <Text style={[styles.summaryText, { color: colors.accent }]}>Try again</Text>
+                </Pressable>
+              </View>
+            ) : (
+              <>
+                <Text style={[styles.summaryLabel, { color: colors.accent }]}>
+                  Summary from the original article
+                </Text>
+                {storyText.map((paragraph, index) => (
+                  <Text key={`${article.id}-p-${index}`} style={[styles.summaryText, { color: colors.body }]}>
+                    {paragraph}
+                  </Text>
+                ))}
+              </>
+            )}
           </View>
         )}
 
@@ -179,6 +222,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     marginBottom: 12,
+  },
+  summaryLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    marginBottom: 8,
+    textTransform: 'uppercase',
   },
   expandedView: {
     marginTop: 4,

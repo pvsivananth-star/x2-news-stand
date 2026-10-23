@@ -16,6 +16,7 @@ import { CategoryPill } from '@/src/components/CategoryPill';
 import { NewsCard } from '@/src/components/NewsCard';
 import { CATEGORY_OPTIONS, FEED_ARTICLES, refreshFeedArticles, type CategoryOption } from '@/src/data/feedData';
 import type { Article, CategoryId } from '@/src/domain/types';
+import { useArticleDetails } from '@/src/hooks/useArticleDetails';
 import { appSettings, getEffectiveTheme, hydrateSettings, subscribeToThemeChanges } from '@/src/state/appSettings';
 
 const DEFAULT_CATEGORY: CategoryId = 'top-stories';
@@ -29,6 +30,7 @@ export default function HomeScreen() {
   const [settingsReady, setSettingsReady] = useState(false);
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>(() => getEffectiveTheme(appSettings.theme));
   const categoryListRef = useRef<FlatList<CategoryOption> | null>(null);
+  const { detailsByArticleId, loadArticleDetails } = useArticleDetails();
 
   const enabledCategories = appSettings.enabledCategories ?? {};
 
@@ -114,10 +116,15 @@ export default function HomeScreen() {
   );
 
   const toggleExpanded = (id: string) => {
+    const expanding = !expandedIds[id];
     setExpandedIds((current) => ({
       ...current,
       [id]: !current[id],
     }));
+    if (expanding) {
+      const article = items.find((item) => item.id === id);
+      void loadArticleDetails(id, article?.sourceLinks[0]?.url ?? article?.url);
+    }
   };
 
   const toggleBookmark = (id: string) => {
@@ -190,6 +197,8 @@ export default function HomeScreen() {
             <NewsCard
               article={item}
               expanded={Boolean(expandedIds[item.id])}
+              details={detailsByArticleId[item.id]}
+              onRetryDetails={() => void loadArticleDetails(item.id, item.sourceLinks[0]?.url ?? item.url)}
               onToggleExpand={() => toggleExpanded(item.id)}
               onToggleBookmark={() => toggleBookmark(item.id)}
               onOpenSource={setSelectedSourceUrl}
