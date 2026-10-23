@@ -110,7 +110,9 @@ export default function HomeScreen() {
 
     try {
       const translated = await translateText(cleanText, translationLanguage);
-      translationCacheRef.current.set(cacheKey, translated);
+      if (translated !== cleanText) {
+        translationCacheRef.current.set(cacheKey, translated);
+      }
       return translated;
     } catch {
       return value;
