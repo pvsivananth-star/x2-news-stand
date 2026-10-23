@@ -18,6 +18,7 @@ import type { Article, CategoryId } from '@/src/domain/types';
 import { useArticleDetails } from '@/src/hooks/useArticleDetails';
 import { useAppTheme } from '@/src/hooks/useAppTheme';
 import { appSettings, hydrateSettings } from '@/src/state/appSettings';
+import { translateText } from '@/src/services/translation';
 
 const DEFAULT_CATEGORY: CategoryId = 'top-stories';
 
@@ -27,12 +28,29 @@ export default function HomeScreen() {
   const [items, setItems] = useState<Article[]>(FEED_ARTICLES);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<number>(Date.now());
   const [selectedSourceUrl, setSelectedSourceUrl] = useState<string | null>(null);
+  const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
   const [settingsReady, setSettingsReady] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const categoryListRef = useRef<FlatList<CategoryOption> | null>(null);
   const { detailsByArticleId, loadArticleDetails } = useArticleDetails();
   const { themeMode } = useAppTheme();
 
   const enabledCategories = appSettings.enabledCategories ?? {};
+  const translationLanguage = appSettings.translationLanguage ?? '';
+  const [translatedArticleMap, setTranslatedArticleMap] = useState<Record<string, { title: string; summary: string }>>({});
+  const [translatedDetailMap, setTranslatedDetailMap] = useState<Record<string, string>>({});
+  const translationCacheRef = useRef<Map<string, string>>(new Map());
+  const articleTranslationQueueRef = useRef<Set<string>>(new Set());
+  const detailTranslationQueueRef = useRef<Set<string>>(new Set());
+  const translationExecutionRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    translationCacheRef.current.clear();
+    articleTranslationQueueRef.current.clear();
+    detailTranslationQueueRef.current.clear();
+    setTranslatedArticleMap({});
+    setTranslatedDetailMap({});
+  }, [translationLanguage]);
 
   useFocusEffect(
     useCallback(() => {
@@ -63,11 +81,127 @@ export default function HomeScreen() {
         border: '#dfe7f5',
       };
 
-  const refreshFeed = async () => {
-    const refreshed = await refreshFeedArticles();
-    setItems(refreshed.length > 0 ? refreshed : FEED_ARTICLES);
-    setLastRefreshedAt(Date.now());
-  };
+  const refreshFeed = useCallback(async () => {
+    if (isRefreshing) {
+      return;
+    }
+
+    setIsRefreshing(true);
+    try {
+      const refreshed = await refreshFeedArticles();
+      setItems(refreshed.length > 0 ? refreshed : FEED_ARTICLES);
+      setLastRefreshedAt(Date.now());
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing]);
+
+  const translateTextSnapshot = useCallback(async (value: string): Promise<string> => {
+    const cleanText = value?.trim() ?? '';
+    if (!cleanText || !translationLanguage) {
+      return value;
+    }
+
+    const cacheKey = `${translationLanguage}:${cleanText}`;
+    const cached = translationCacheRef.current.get(cacheKey);
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    try {
+      const translated = await translateText(cleanText, translationLanguage);
+      if (translated !== cleanText) {
+        translationCacheRef.current.set(cacheKey, translated);
+      }
+      return translated;
+    } catch {
+      return value;
+    }
+  }, [translationLanguage]);
+
+  const translateArticle = useCallback(async (article: Article): Promise<Article> => {
+    if (!translationLanguage) {
+      return article;
+    }
+
+    const titleText = article.title?.trim() ?? '';
+    const summaryText = article.summary?.trim() || article.content?.trim() || '';
+
+    try {
+      const [translatedTitle, translatedSummary] = await Promise.all([
+        titleText ? translateTextSnapshot(titleText) : Promise.resolve(titleText),
+        summaryText ? translateTextSnapshot(summaryText) : Promise.resolve(summaryText),
+      ]);
+
+      return {
+        ...article,
+        title: translatedTitle || article.title,
+        summary: translatedSummary || article.summary,
+        content: translatedSummary || article.content,
+      };
+    } catch {
+      return article;
+    }
+  }, [translationLanguage, translateTextSnapshot]);
+
+  useEffect(() => {
+    if (!translationLanguage) {
+      translationExecutionRef.current.clear();
+      return;
+    }
+
+    const pendingArticleIds = new Set(items.map((article) => article.id));
+    const articleTasks = items.map(async (article) => {
+      if (articleTranslationQueueRef.current.has(article.id)) {
+        return;
+      }
+
+      articleTranslationQueueRef.current.add(article.id);
+      translationExecutionRef.current.add(article.id);
+
+      try {
+        const translated = await translateArticle(article);
+        setTranslatedArticleMap((current) => ({
+          ...current,
+          [article.id]: {
+            title: translated.title ?? article.title,
+            summary: translated.summary ?? translated.content ?? article.summary ?? '',
+          },
+        }));
+      } finally {
+        articleTranslationQueueRef.current.delete(article.id);
+        translationExecutionRef.current.delete(article.id);
+        pendingArticleIds.delete(article.id);
+      }
+    });
+
+    void Promise.allSettled(articleTasks);
+  }, [items, translationLanguage, translateArticle]);
+
+  useEffect(() => {
+    if (!translationLanguage) {
+      return;
+    }
+
+    const detailTasks = Object.entries(detailsByArticleId).map(async ([articleId, detailState]) => {
+      if (detailState.status !== 'success' || !detailState.details.summary || detailTranslationQueueRef.current.has(articleId)) {
+        return;
+      }
+
+      detailTranslationQueueRef.current.add(articleId);
+      try {
+        const translated = await translateTextSnapshot(detailState.details.summary);
+        setTranslatedDetailMap((current) => ({
+          ...current,
+          [articleId]: translated,
+        }));
+      } finally {
+        detailTranslationQueueRef.current.delete(articleId);
+      }
+    });
+
+    void Promise.allSettled(detailTasks);
+  }, [detailsByArticleId, translationLanguage, translateTextSnapshot]);
 
   useEffect(() => {
     void hydrateSettings().then(() => {
@@ -137,18 +271,66 @@ export default function HomeScreen() {
     }
   }, []);
 
-  const renderArticle = useCallback(({ item }: { item: Article }) => (
-    <NewsCard
-      article={item}
-      expanded={Boolean(expandedIds[item.id])}
-      details={detailsByArticleId[item.id]}
-      onRetryDetails={() => void loadArticleDetails(item.id, item.sourceLinks[0]?.url ?? item.url)}
-      onToggleExpand={() => toggleExpanded(item.id)}
-      onToggleBookmark={() => toggleBookmark(item.id)}
-      onOpenSource={setSelectedSourceUrl}
-      darkMode={themeMode === 'dark'}
-    />
-  ), [detailsByArticleId, expandedIds, loadArticleDetails, themeMode, toggleExpanded, toggleBookmark]);
+  const shouldAllowArticleNavigation = useCallback((requestUrl: string) => {
+   if (!selectedSourceUrl) {
+     return false;
+   }
+
+   try {
+     const allowed = new URL(selectedSourceUrl);
+     const next = new URL(requestUrl);
+
+     if (!['http:', 'https:'].includes(next.protocol)) {
+       return false;
+     }
+
+     return next.origin === allowed.origin;
+   } catch {
+     return requestUrl === selectedSourceUrl;
+   }
+  }, [selectedSourceUrl]);
+
+  const renderArticle = useCallback(({ item }: { item: Article }) => {
+    const translatedArticle = translatedArticleMap[item.id]
+      ? {
+          ...item,
+          title: translatedArticleMap[item.id].title || item.title,
+          summary: translatedArticleMap[item.id].summary || item.summary,
+          content: translatedArticleMap[item.id].summary || item.content,
+        }
+      : item;
+
+    const articleDetails = detailsByArticleId[item.id];
+    const translatedDetails = articleDetails?.status === 'success' && translatedDetailMap[item.id]
+      ? {
+          ...articleDetails,
+          details: {
+            ...articleDetails.details,
+            summary: translatedDetailMap[item.id],
+          },
+        }
+      : articleDetails;
+
+    return (
+      <NewsCard
+        article={translatedArticle}
+        expanded={Boolean(expandedIds[item.id])}
+        details={translatedDetails}
+        onRetryDetails={() => void loadArticleDetails(item.id, item.sourceLinks[0]?.url ?? item.url)}
+        onToggleExpand={() => toggleExpanded(item.id)}
+        onToggleBookmark={() => toggleBookmark(item.id)}
+        onOpenSource={(url) => {
+          setSelectedSourceUrl(url);
+          setSelectedArticleId(item.id);
+        }}
+        onTranslate={async () => {
+          const translated = await translateArticle(item);
+          setItems((current) => current.map((entry) => entry.id === item.id ? translated : entry));
+        }}
+        darkMode={themeMode === 'dark'}
+      />
+    );
+  }, [detailsByArticleId, expandedIds, loadArticleDetails, themeMode, toggleExpanded, toggleBookmark, translateArticle, translatedArticleMap, translatedDetailMap]);
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: palette.background }]}>
@@ -167,6 +349,9 @@ export default function HomeScreen() {
           </Link>
 
           <Text style={[styles.title, { color: palette.title }]} numberOfLines={1} ellipsizeMode="tail">X2 News</Text>
+          {translationLanguage ? (
+            <Text style={[styles.translatedBadge, { color: palette.muted }]}>{'Translated'}</Text>
+          ) : null}
         </View>
 
         <View style={styles.headerActions}>
@@ -175,10 +360,16 @@ export default function HomeScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Refresh feeds"
-            onPress={refreshFeed}
-            style={[styles.iconButton, { backgroundColor: palette.soft, borderColor: palette.soft }]}
+            onPress={() => void refreshFeed()}
+            disabled={isRefreshing}
+            style={[
+              styles.iconButton,
+              styles.refreshButton,
+              { backgroundColor: palette.soft, borderColor: palette.soft },
+              isRefreshing && styles.refreshButtonDisabled,
+            ]}
           >
-            <Text style={[styles.iconText, { color: palette.title }]}>↻</Text>
+            <Text style={[styles.iconText, { color: palette.title }]}>{isRefreshing ? '⏳' : '↻'}</Text>
           </Pressable>
         </View>
       </View>
@@ -229,14 +420,22 @@ export default function HomeScreen() {
       <Modal visible={selectedSourceUrl !== null} animationType="slide" transparent={false} onRequestClose={() => setSelectedSourceUrl(null)}>
         <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }}>
           {selectedSourceUrl ? (
-            <WebView source={{ uri: selectedSourceUrl }} startInLoadingState style={styles.webView} />
+            <WebView
+              source={{ uri: selectedSourceUrl }}
+              startInLoadingState
+              style={styles.webView}
+              onShouldStartLoadWithRequest={(request) => shouldAllowArticleNavigation(request.url)}
+            />
           ) : null}
 
           <View style={styles.modalFooter}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Close story"
-              onPress={() => setSelectedSourceUrl(null)}
+              onPress={() => {
+                setSelectedSourceUrl(null);
+                setSelectedArticleId(null);
+              }}
               style={[styles.modalCloseButton, { backgroundColor: palette.soft, borderColor: palette.border }]}
             >
               <Text style={[styles.modalCloseText, { color: palette.title }]}>✕</Text>
@@ -290,6 +489,12 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     minWidth: 0,
   },
+  translatedBadge: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
   iconButton: {
     width: 38,
     height: 38,
@@ -297,6 +502,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    shadowColor: '#0f172a',
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+  },
+  refreshButton: {
+    minWidth: 44,
+  },
+  refreshButtonDisabled: {
+    opacity: 0.6,
   },
   iconText: {
     fontSize: 20,

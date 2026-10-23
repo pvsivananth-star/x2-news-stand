@@ -1,0 +1,21 @@
+X2 News acts strictly as an automated feed aggregator. All headlines, snippets, and media displayed within the app remain the exclusive intellectual property of their original publishers. This application claims no ownership or authorship of third-party content and serves solely as a reader tool to index publicly available RSS feeds.
+
+Translation features (powered by native OS engines or AI models) are provided for user convenience only. Machine-generated translations may contain semantic errors or inaccuracies; therefore, X2 News disclaims all liability regarding translated content. Users are advised to cross-reference translated articles with their original sources. Read our full Legal Disclaimer & Terms for detailed terms.
+
+Legal Disclaimer & Terms
+
+1. Content Aggregation & Copyright Policy
+
+Feed Aggregator Status: X2 News ("the App") operates exclusively as a technical aggregator of publicly accessible Really Simple Syndication (RSS) feeds.
+
+Intellectual Property Rights: All article titles, excerpts, text, images, and associated media displayed within the App are the exclusive intellectual property of their respective third-party publishers, authors, and copyright holders.
+
+No Rights Claimed: The App claims no ownership, copyright, or exclusive licensing rights over third-party content. Aggregation does not imply endorsement, affiliation, or legal sponsorship by or with the original content publishers. All rights remain fully reserved by the original content creators.
+
+2. Automated & AI Translation Services
+
+As-Is Service: Translation tools integrated within the App (utilizing native operating system translation layers, third-party APIs, or Artificial Intelligence algorithms) are provided strictly on an "as-is" and "as-available" basis for reference purposes only.
+
+Disclaimer of Accuracy & Liability: Automated machine translations are inherently susceptible to context loss, literal translation errors, and semantic misinterpretations. X2 News expressly disclaims all warranties, express or implied, regarding the accuracy, completeness, tone, or reliability of translated material.
+
+User Risk & Verification: The End User assumes all risk associated with reliance on translated content. X2 News shall not be held liable for any claims, losses, or legal disputes arising from inaccuracies, errors, or omissions produced by automated translation processes. Users are strongly encouraged to verify critical facts against the original source feed.

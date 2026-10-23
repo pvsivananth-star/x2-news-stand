@@ -634,9 +634,9 @@
         "business",
         "technology"
       ],
-      "status": "tracker-listed",
+      "status": "working",
       "enabled": true,
-      "notes": "No official Reuters feed. Google News search restricted to reuters.com. Google News link redirects; confirm terms (O2)."
+      "notes": "Verified live on 2026-10-23: Google News Reuters search feed returns current articles."
     },
     {
       "id": "bloomberg-news",
@@ -650,8 +650,8 @@
         "business"
       ],
       "status": "tracker-listed",
-      "enabled": true,
-      "notes": "Terms pending (O5)."
+      "enabled": false,
+      "notes": "Removed from active feed set per owner request."
     },
     {
       "id": "bloomberg-markets",
@@ -663,8 +663,8 @@
         "markets"
       ],
       "status": "tracker-listed",
-      "enabled": true,
-      "notes": "Terms pending (O5)."
+      "enabled": false,
+      "notes": "Removed from active feed set per owner request."
     },
     {
       "id": "bloomberg-technology",
@@ -676,8 +676,8 @@
         "technology"
       ],
       "status": "tracker-listed",
-      "enabled": true,
-      "notes": "Terms pending (O5)."
+      "enabled": false,
+      "notes": "Removed from active feed set per owner request."
     },
     {
       "id": "bloomberg-economics",
@@ -690,8 +690,8 @@
         "business"
       ],
       "status": "tracker-listed",
-      "enabled": true,
-      "notes": "Terms pending (O5)."
+      "enabled": false,
+      "notes": "Removed from active feed set per owner request."
     },
     {
       "id": "bloomberg-politics",
@@ -703,8 +703,8 @@
         "politics"
       ],
       "status": "tracker-listed",
-      "enabled": true,
-      "notes": "Terms pending (O5)."
+      "enabled": false,
+      "notes": "Removed from active feed set per owner request."
     },
     {
       "id": "federal-reserve-press",
