@@ -135,7 +135,40 @@ const parsePublishedAt = (rawDate: string | null | undefined, fallbackIndex: num
   return Date.now() - fallbackIndex * 60 * 60 * 1000;
 };
 
-const toArticleCategory = (feedCategories: CategoryId[], fallbackIndex: number): CategoryId => {
+const CATEGORY_KEYWORDS: Record<CategoryId, string[]> = {
+  'top-stories': ['top stories', 'news', 'latest', 'breaking', 'updates'],
+  local: ['chennai', 'tamil nadu', 'tn', 'local', 'city', 'district', 'municipality', 'traffic', 'water', 'council'],
+  district: ['district', 'taluk', 'municipality', 'collector', 'village', 'block', 'rural', 'panchayat'],
+  national: ['india', 'national', 'government', 'minister', 'parliament', 'delhi', 'state', 'union'],
+  world: ['world', 'international', 'global', 'uk', 'us', 'europe', 'asia', 'africa', 'middle east', 'gaza', 'russia', 'china'],
+  markets: ['market', 'stock', 'shares', 'nifty', 'sensex', 'equity', 'ipo', 'trading', 'bse', 'nse'],
+  business: ['business', 'startup', 'company', 'revenue', 'industry', 'economy', 'trade', 'banking', 'corporate'],
+  technology: ['technology', 'tech', 'ai', 'software', 'app', 'android', 'iphone', 'cloud', 'cyber', 'chip', 'digital'],
+  science: ['science', 'research', 'scientist', 'space', 'satellite', 'lab', 'climate', 'study', 'astronomy'],
+  'health-medical': ['health', 'medical', 'doctor', 'hospital', 'patient', 'fitness', 'wellness', 'disease', 'clinic', 'covid'],
+  politics: ['politics', 'political', 'minister', 'election', 'campaign', 'government', 'policy', 'parliament'],
+  sports: ['sports', 'cricket', 'football', 'tennis', 'match', 'team', 'tournament', 'league', 'cup', 'coach'],
+  entertainment: ['film', 'movie', 'cinema', 'actor', 'actress', 'music', 'series', 'festival', 'theatre', 'entertainment'],
+  lifestyle: ['lifestyle', 'travel', 'food', 'fashion', 'culture', 'wellbeing', 'home', 'garden', 'cooking'],
+  'viral-trending': ['viral', 'trending', 'social media', 'reel', 'meme', 'internet', 'craze', 'popular', 'video'],
+};
+
+const scoreCategory = (text: string, category: CategoryId): number => {
+  const normalized = text.toLowerCase();
+  const keywords = CATEGORY_KEYWORDS[category] ?? [];
+  return keywords.reduce((score, keyword) => score + (normalized.includes(keyword) ? 2 : 0), 0);
+};
+
+const toArticleCategory = (title: string, description: string, feedCategories: CategoryId[], fallbackIndex: number): CategoryId => {
+  const candidateText = `${title} ${description}`.toLowerCase();
+  const scored = (Object.keys(CATEGORY_KEYWORDS) as CategoryId[]).map((category) => ({
+    category,
+    score: scoreCategory(candidateText, category),
+  })).sort((a, b) => b.score - a.score);
+
+  const matched = scored.find((entry) => entry.score > 0)?.category;
+  if (matched) return matched;
+
   const preferred = feedCategories.find((category) => category !== 'top-stories');
   return preferred ?? feedCategories[0] ?? 'top-stories';
 };
@@ -158,7 +191,7 @@ const parseRssItems = (xml: string, feedName: string, feedCategories: CategoryId
     const paragraphs = buildParagraphs(contentText, 4);
     const imageUrl = extractImageUrl(itemXml);
     const summaryText = extractRssDescription(itemXml);
-    const category = toArticleCategory(feedCategories, index);
+    const category = toArticleCategory(`${title} ${storyText}`.trim(), storyText, feedCategories, index);
     articles.push({
       id: `${feedName}-${articleUrl}`,
       title,

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Article } from '@/src/domain/types';
 import type { ArticleDetailsState } from '@/src/hooks/useArticleDetails';
@@ -29,7 +30,7 @@ function formatRelativeTime(timestamp: number): string {
   return `${diffDays}d ago`;
 }
 
-export function NewsCard({
+const NewsCardComponent = ({
   article,
   expanded,
   details,
@@ -38,7 +39,7 @@ export function NewsCard({
   onToggleBookmark,
   onOpenSource,
   darkMode,
-}: NewsCardProps) {
+}: NewsCardProps) => {
   const primarySource = article.sourceLinks[0]?.url || article.url || 'https://example.com';
 
   const colors = darkMode
@@ -158,7 +159,9 @@ export function NewsCard({
       </View>
     </Pressable>
   );
-}
+};
+
+export const NewsCard = memo(NewsCardComponent);
 
 const styles = StyleSheet.create({
   card: {

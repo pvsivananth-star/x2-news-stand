@@ -101,7 +101,7 @@ export default function HomeScreen() {
     [items, activeCategory, enabledCategories],
   );
 
-  const toggleExpanded = (id: string) => {
+  const toggleExpanded = useCallback((id: string) => {
     const expanding = !expandedIds[id];
     setExpandedIds((current) => ({
       ...current,
@@ -111,19 +111,19 @@ export default function HomeScreen() {
       const article = items.find((item) => item.id === id);
       void loadArticleDetails(id, article?.sourceLinks[0]?.url ?? article?.url);
     }
-  };
+  }, [expandedIds, items, loadArticleDetails]);
 
-  const toggleBookmark = (id: string) => {
+  const toggleBookmark = useCallback((id: string) => {
     setItems((current) =>
       current.map((item) =>
         item.id === id ? { ...item, bookmarked: !item.bookmarked } : item,
       ),
     );
-  };
+  }, []);
 
   const refreshStatus = new Date(lastRefreshedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  const handleCategoryPress = (categoryId: CategoryId) => {
+  const handleCategoryPress = useCallback((categoryId: CategoryId) => {
     setActiveCategory(categoryId);
     const index = CATEGORY_OPTIONS.findIndex((item) => item.id === categoryId);
     if (index >= 0) {
@@ -135,7 +135,20 @@ export default function HomeScreen() {
         });
       });
     }
-  };
+  }, []);
+
+  const renderArticle = useCallback(({ item }: { item: Article }) => (
+    <NewsCard
+      article={item}
+      expanded={Boolean(expandedIds[item.id])}
+      details={detailsByArticleId[item.id]}
+      onRetryDetails={() => void loadArticleDetails(item.id, item.sourceLinks[0]?.url ?? item.url)}
+      onToggleExpand={() => toggleExpanded(item.id)}
+      onToggleBookmark={() => toggleBookmark(item.id)}
+      onOpenSource={setSelectedSourceUrl}
+      darkMode={themeMode === 'dark'}
+    />
+  ), [detailsByArticleId, expandedIds, loadArticleDetails, themeMode, toggleExpanded, toggleBookmark]);
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: palette.background }]}>
@@ -179,18 +192,7 @@ export default function HomeScreen() {
           snapToInterval={220}
           snapToAlignment="start"
           decelerationRate="fast"
-          renderItem={({ item }) => (
-            <NewsCard
-              article={item}
-              expanded={Boolean(expandedIds[item.id])}
-              details={detailsByArticleId[item.id]}
-              onRetryDetails={() => void loadArticleDetails(item.id, item.sourceLinks[0]?.url ?? item.url)}
-              onToggleExpand={() => toggleExpanded(item.id)}
-              onToggleBookmark={() => toggleBookmark(item.id)}
-              onOpenSource={setSelectedSourceUrl}
-              darkMode={themeMode === 'dark'}
-            />
-          )}
+          renderItem={renderArticle}
           ListEmptyComponent={
             <View style={[styles.emptyState, { backgroundColor: palette.surface, borderColor: palette.border }]}> 
               <Text style={[styles.emptyTitle, { color: palette.title }]}>No stories in this view</Text>
