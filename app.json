@@ -10,7 +10,8 @@
     "icon": "./assets/icon-1024.png",
     "ios": {
       "bundleIdentifier": "com.example.x2newsstand",
-      "icon": "./assets/icon-1024.png"
+      "icon": "./assets/icon-1024.png",
+      "deploymentTarget": "15.5"
     },
     "android": {
       "package": "com.example.x2newsstand",
@@ -18,7 +19,15 @@
     },
     "plugins": [
       "expo-router",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.5"
+          }
+        }
+      ]
     ]
   }
 }

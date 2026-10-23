@@ -11,8 +11,10 @@
     "test": "node --experimental-strip-types --test src/domain/*.test.ts src/config/*.test.ts src/services/*.test.ts src/state/*.test.ts"
   },
   "dependencies": {
+    "@react-native-ml-kit/translate-text": "^0.5.0",
     "expo": "~52.0.0",
     "expo-asset": "~11.0.5",
+    "expo-build-properties": "~0.13.3",
     "expo-constants": "~17.0.8",
     "expo-file-system": "~18.0.12",
     "expo-linking": "~7.0.5",
@@ -34,6 +36,6 @@
     "typescript": "~5.3.3"
   },
   "overrides": {
-    "tar": "7.5.20"
+    "tar": "6.2.1"
   }
 }

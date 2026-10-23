@@ -42,6 +42,7 @@ export default function HomeScreen() {
   const translationCacheRef = useRef<Map<string, string>>(new Map());
   const articleTranslationQueueRef = useRef<Set<string>>(new Set());
   const detailTranslationQueueRef = useRef<Set<string>>(new Set());
+  const translationExecutionRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     translationCacheRef.current.clear();
@@ -143,17 +144,21 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (!translationLanguage) {
+      translationExecutionRef.current.clear();
       return;
     }
 
-    for (const article of items) {
+    const pendingArticleIds = new Set(items.map((article) => article.id));
+    const articleTasks = items.map(async (article) => {
       if (articleTranslationQueueRef.current.has(article.id)) {
-        continue;
+        return;
       }
 
       articleTranslationQueueRef.current.add(article.id);
-      void translateArticle(article).then((translated) => {
-        articleTranslationQueueRef.current.delete(article.id);
+      translationExecutionRef.current.add(article.id);
+
+      try {
+        const translated = await translateArticle(article);
         setTranslatedArticleMap((current) => ({
           ...current,
           [article.id]: {
@@ -161,10 +166,14 @@ export default function HomeScreen() {
             summary: translated.summary ?? translated.content ?? article.summary ?? '',
           },
         }));
-      }).catch(() => {
+      } finally {
         articleTranslationQueueRef.current.delete(article.id);
-      });
-    }
+        translationExecutionRef.current.delete(article.id);
+        pendingArticleIds.delete(article.id);
+      }
+    });
+
+    void Promise.allSettled(articleTasks);
   }, [items, translationLanguage, translateArticle]);
 
   useEffect(() => {
@@ -172,22 +181,24 @@ export default function HomeScreen() {
       return;
     }
 
-    for (const [articleId, detailState] of Object.entries(detailsByArticleId)) {
+    const detailTasks = Object.entries(detailsByArticleId).map(async ([articleId, detailState]) => {
       if (detailState.status !== 'success' || !detailState.details.summary || detailTranslationQueueRef.current.has(articleId)) {
-        continue;
+        return;
       }
 
       detailTranslationQueueRef.current.add(articleId);
-      void translateTextSnapshot(detailState.details.summary).then((translated) => {
-        detailTranslationQueueRef.current.delete(articleId);
+      try {
+        const translated = await translateTextSnapshot(detailState.details.summary);
         setTranslatedDetailMap((current) => ({
           ...current,
           [articleId]: translated,
         }));
-      }).catch(() => {
+      } finally {
         detailTranslationQueueRef.current.delete(articleId);
-      });
-    }
+      }
+    });
+
+    void Promise.allSettled(detailTasks);
   }, [detailsByArticleId, translationLanguage, translateTextSnapshot]);
 
   useEffect(() => {
