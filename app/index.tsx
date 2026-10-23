@@ -13,7 +13,7 @@ import {
 import WebView from 'react-native-webview';
 import { CategoryPill } from '@/src/components/CategoryPill';
 import { NewsCard } from '@/src/components/NewsCard';
-import { CATEGORY_OPTIONS, FEED_ARTICLES, type CategoryOption } from '@/src/data/feedData';
+import { CATEGORY_OPTIONS, FEED_ARTICLES, refreshFeedArticles, type CategoryOption } from '@/src/data/feedData';
 import type { Article, CategoryId } from '@/src/domain/types';
 import { appSettings, hydrateSettings, resolveTheme } from '@/src/state/appSettings';
 
@@ -54,8 +54,9 @@ export default function HomeScreen() {
         border: '#dfe7f5',
       };
 
-  const refreshFeed = () => {
-    setItems((current) => [...current].sort((a, b) => b.publishedAt - a.publishedAt));
+  const refreshFeed = async () => {
+    const refreshed = await refreshFeedArticles();
+    setItems(refreshed.length > 0 ? refreshed : FEED_ARTICLES);
     setLastRefreshedAt(Date.now());
   };
 
@@ -63,13 +64,13 @@ export default function HomeScreen() {
     void hydrateSettings().then(() => {
       setSettingsReady(true);
     });
-    refreshFeed();
+    void refreshFeed();
   }, []);
 
   useEffect(() => {
     const intervalMs = appSettings.refreshIntervalMinutes * 60 * 1000;
     const timer = setInterval(() => {
-      refreshFeed();
+      void refreshFeed();
     }, intervalMs);
 
     return () => clearInterval(timer);

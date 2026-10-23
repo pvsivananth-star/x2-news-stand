@@ -28,26 +28,23 @@ function formatRelativeTime(timestamp: number): string {
 
 export function NewsCard({ article, expanded, onToggleExpand, onToggleBookmark, onOpenSource, darkMode }: NewsCardProps) {
   const primarySource = article.sourceLinks[0]?.url || article.url || 'https://example.com';
+
   const colors = darkMode
     ? {
         card: '#0f172a',
         cardBorder: '#1f2937',
-        meta: '#cbd5e1',
         time: '#94a3b8',
         text: '#f8fafc',
         body: '#dfe7f5',
-        muted: '#94a3b8',
         accent: '#7dd3fc',
         button: '#111827',
       }
     : {
         card: '#ffffff',
         cardBorder: '#dfe7f5',
-        meta: '#334155',
         time: '#64748b',
         text: '#0f172a',
         body: '#334155',
-        muted: '#64748b',
         accent: '#0369a1',
         button: '#f1f5f9',
       };
@@ -58,41 +55,6 @@ export function NewsCard({ article, expanded, onToggleExpand, onToggleBookmark, 
   return (
     <Pressable onPress={onToggleExpand} accessibilityRole="button" accessibilityLabel={`Toggle article details for ${article.title}`}>
       <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]} accessible>
-        <View style={styles.headerRow}>
-          <View style={styles.metaBlock}>
-            <Text style={[styles.sourceText, { color: colors.meta }]}>{article.sourceName}</Text>
-            <Text style={[styles.timeText, { color: colors.time }]}>{formatRelativeTime(article.publishedAt)}</Text>
-          </View>
-
-          <View style={styles.headerActions}>
-            {article.sourceLinks.length > 0 && (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Open original story: ${primarySource}`}
-                onPress={(event) => {
-                  event.stopPropagation();
-                  onOpenSource(primarySource);
-                }}
-                style={[styles.sourceLinkButton, { backgroundColor: colors.button }]}
-              >
-                <Text style={[styles.sourceLinkText, { color: colors.accent }]}>{article.sourceName || 'Source'}</Text>
-              </Pressable>
-            )}
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={article.bookmarked ? 'Remove bookmark' : 'Add bookmark'}
-              onPress={(event) => {
-                event.stopPropagation();
-                onToggleBookmark();
-              }}
-              style={[styles.iconButton, { backgroundColor: colors.button }]}
-            >
-              <Text style={[styles.iconText, { color: darkMode ? '#fbbf24' : '#d97706' }]}>{article.bookmarked ? '★' : '☆'}</Text>
-            </Pressable>
-          </View>
-        </View>
-
         <Text style={[styles.titleText, { color: colors.text }]}>{article.title}</Text>
 
         {!expanded ? (
@@ -117,7 +79,39 @@ export function NewsCard({ article, expanded, onToggleExpand, onToggleBookmark, 
           </View>
         )}
 
-        <View style={styles.footerRow} />
+        <View style={styles.footerRow}>
+          <View style={styles.metaBlock}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={article.bookmarked ? 'Remove bookmark' : 'Add bookmark'}
+              onPress={(event) => {
+                event.stopPropagation();
+                onToggleBookmark();
+              }}
+              style={[styles.iconButton, { backgroundColor: colors.button }]}
+            >
+              <Text style={[styles.iconText, { color: darkMode ? '#fbbf24' : '#d97706' }]}>{article.bookmarked ? '★' : '☆'}</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.metaBlockRight}>
+            <Text style={[styles.timeText, { color: colors.time }]}>{formatRelativeTime(article.publishedAt)}</Text>
+
+            {article.sourceLinks.length > 0 && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Open original story: ${primarySource}`}
+                onPress={(event) => {
+                  event.stopPropagation();
+                  onOpenSource(primarySource);
+                }}
+                style={[styles.sourceLinkButton, { backgroundColor: colors.button }]}
+              >
+                <Text style={[styles.sourceLinkText, { color: colors.accent }]}>{article.sourceName || 'Source'}</Text>
+              </Pressable>
+            )}
+          </View>
+        </View>
       </View>
     </Pressable>
   );
@@ -135,30 +129,17 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 4,
   },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
   metaBlock: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 9,
     flexShrink: 1,
-    minWidth: 0,
   },
-  headerActions: {
+  metaBlockRight: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-end',
     gap: 8,
-    flexShrink: 0,
-  },
-  sourceText: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.2,
-    textTransform: 'uppercase',
+    flexShrink: 1,
   },
   timeText: {
     fontSize: 12,
@@ -202,57 +183,18 @@ const styles = StyleSheet.create({
   expandedView: {
     marginTop: 4,
   },
+  footerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginTop: 8,
+  },
   articleImage: {
     width: '100%',
     height: 180,
     borderRadius: 12,
     marginBottom: 12,
     backgroundColor: '#cbd5e1',
-  },
-  linkGroup: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 8,
-  },
-  linkButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    backgroundColor: 'rgba(125, 211, 252, 0.12)',
-  },
-  linkText: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  footerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    marginTop: 8,
-  },
-  footerMeta: {
-    flex: 1,
-  },
-  urlFooter: {
-    minWidth: 0,
-    maxWidth: '70%',
-    alignItems: 'flex-end',
-  },
-  sourceMetaText: {
-    fontSize: 12,
-    fontWeight: '600',
-    textAlign: 'right',
-    flexShrink: 1,
-  },
-  sourceUrlButton: {
-    marginTop: 10,
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-  },
-  sourceUrlText: {
-    fontSize: 12,
-    fontWeight: '600',
   },
 });
