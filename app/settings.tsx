@@ -15,15 +15,14 @@ import type { CategoryId } from '@/src/domain/types';
 import {
   appSettings,
   DEFAULT_CATEGORY_STATE,
-  getEffectiveTheme,
   hydrateSettings,
   loadEnabledCategories,
   setEnabledCategories as persistEnabledCategories,
   setRefreshInterval,
   setTheme,
-  subscribeToThemeChanges,
   type AppTheme,
 } from '@/src/state/appSettings';
+import { useAppTheme } from '@/src/hooks/useAppTheme';
 
 const refreshOptions = [5, 10, 15, 30, 60];
 const themeOptions: AppTheme[] = ['system', 'light', 'dark'];
@@ -33,23 +32,16 @@ export default function SettingsScreen() {
     loadEnabledCategories(),
   );
   const [refreshInterval, setLocalRefreshInterval] = useState<number>(appSettings.refreshIntervalMinutes);
-  const [theme, setLocalTheme] = useState<AppTheme>(appSettings.theme);
+  const { theme, themeMode } = useAppTheme();
+  const [themeSaveError, setThemeSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     void hydrateSettings().then(() => {
       setEnabledCategories(loadEnabledCategories());
       setLocalRefreshInterval(appSettings.refreshIntervalMinutes);
-      setLocalTheme(appSettings.theme);
     });
-
-    const unsubscribe = subscribeToThemeChanges(() => {
-      setLocalTheme(appSettings.theme);
-    });
-
-    return unsubscribe;
   }, []);
 
-  const themeMode = getEffectiveTheme(appSettings.theme);
   const palette = themeMode === 'dark'
     ? {
         background: '#020817',
@@ -99,9 +91,15 @@ export default function SettingsScreen() {
     setRefreshInterval(minutes);
   };
 
-  const applyTheme = (nextTheme: AppTheme) => {
-    setLocalTheme(nextTheme);
-    setTheme(nextTheme);
+  const applyTheme = async (nextTheme: AppTheme) => {
+    setThemeSaveError(null);
+    try {
+      await setTheme(nextTheme);
+    } catch (error) {
+      setThemeSaveError(
+        error instanceof Error ? `Theme could not be saved: ${error.message}` : 'Theme could not be saved.',
+      );
+    }
   };
 
   return (
@@ -186,6 +184,11 @@ export default function SettingsScreen() {
               </Pressable>
             ))}
           </View>
+          {themeSaveError ? (
+            <Text accessibilityRole="alert" style={[styles.valueText, { color: palette.body }]}>
+              {themeSaveError}
+            </Text>
+          ) : null}
         </View>
 
         <View style={[styles.section, { backgroundColor: palette.surface, borderColor: palette.soft }]}>

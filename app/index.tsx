@@ -1,6 +1,5 @@
 import { Link, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Appearance } from 'react-native';
 import {
   FlatList,
   Modal,
@@ -17,7 +16,8 @@ import { NewsCard } from '@/src/components/NewsCard';
 import { CATEGORY_OPTIONS, FEED_ARTICLES, refreshFeedArticles, type CategoryOption } from '@/src/data/feedData';
 import type { Article, CategoryId } from '@/src/domain/types';
 import { useArticleDetails } from '@/src/hooks/useArticleDetails';
-import { appSettings, getEffectiveTheme, hydrateSettings, subscribeToThemeChanges } from '@/src/state/appSettings';
+import { useAppTheme } from '@/src/hooks/useAppTheme';
+import { appSettings, hydrateSettings } from '@/src/state/appSettings';
 
 const DEFAULT_CATEGORY: CategoryId = 'top-stories';
 
@@ -28,31 +28,17 @@ export default function HomeScreen() {
   const [lastRefreshedAt, setLastRefreshedAt] = useState<number>(Date.now());
   const [selectedSourceUrl, setSelectedSourceUrl] = useState<string | null>(null);
   const [settingsReady, setSettingsReady] = useState(false);
-  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(() => getEffectiveTheme(appSettings.theme));
   const categoryListRef = useRef<FlatList<CategoryOption> | null>(null);
   const { detailsByArticleId, loadArticleDetails } = useArticleDetails();
+  const { themeMode } = useAppTheme();
 
   const enabledCategories = appSettings.enabledCategories ?? {};
-
-  const syncTheme = useCallback(() => {
-    setThemeMode(getEffectiveTheme(appSettings.theme));
-  }, []);
 
   useFocusEffect(
     useCallback(() => {
       void hydrateSettings();
-      syncTheme();
-
-      const subscription = Appearance.addChangeListener(syncTheme);
-      return () => subscription.remove();
-    }, [syncTheme]),
+    }, []),
   );
-
-  useEffect(() => {
-    const unsubscribe = subscribeToThemeChanges(syncTheme);
-    syncTheme();
-    return unsubscribe;
-  }, [syncTheme]);
   const palette = themeMode === 'dark'
     ? {
         background: '#020817',

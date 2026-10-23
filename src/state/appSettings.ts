@@ -1,6 +1,7 @@
 import { Appearance } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import type { CategoryId } from '@/src/domain/types';
+import { shouldApplyHydratedTheme } from '@/src/state/themeHydration';
 
 export type AppTheme = 'system' | 'light' | 'dark';
 
@@ -39,6 +40,8 @@ const SETTINGS_FILE = `${FileSystem.documentDirectory ?? ''}x2-news-stand-settin
 export const appSettings: AppSettingsState = { ...DEFAULT_SETTINGS, enabledCategories: { ...DEFAULT_CATEGORY_STATE } };
 
 const themeListeners = new Set<() => void>();
+let themeRevision = 0;
+let persistenceQueue: Promise<void> = Promise.resolve();
 
 export function subscribeToThemeChanges(listener: () => void): () => void {
   themeListeners.add(listener);
@@ -48,7 +51,9 @@ export function subscribeToThemeChanges(listener: () => void): () => void {
 }
 
 function notifyThemeChange(): void {
-  themeListeners.forEach((listener) => listener());
+  for (const listener of [...themeListeners]) {
+    listener();
+  }
 }
 
 async function readPersistedSettings(): Promise<AppSettingsState> {
@@ -73,19 +78,31 @@ async function readPersistedSettings(): Promise<AppSettingsState> {
 }
 
 export async function hydrateSettings(): Promise<void> {
+  const hydrationStartedAtRevision = themeRevision;
   const persisted = await readPersistedSettings();
   appSettings.refreshIntervalMinutes = persisted.refreshIntervalMinutes;
-  appSettings.theme = persisted.theme;
+  if (shouldApplyHydratedTheme(hydrationStartedAtRevision, themeRevision)) {
+    appSettings.theme = persisted.theme;
+  }
   appSettings.enabledCategories = { ...DEFAULT_CATEGORY_STATE, ...persisted.enabledCategories };
   notifyThemeChange();
 }
 
 export async function persistSettings(): Promise<void> {
-  await FileSystem.writeAsStringAsync(SETTINGS_FILE, JSON.stringify({
+  const serialized = JSON.stringify({
     refreshIntervalMinutes: appSettings.refreshIntervalMinutes,
     theme: appSettings.theme,
     enabledCategories: appSettings.enabledCategories,
-  }));
+  });
+  const write = persistenceQueue.then(
+    () => FileSystem.writeAsStringAsync(SETTINGS_FILE, serialized),
+    () => FileSystem.writeAsStringAsync(SETTINGS_FILE, serialized),
+  );
+  persistenceQueue = write.then(
+    () => undefined,
+    () => undefined,
+  );
+  await write;
 }
 
 export function setRefreshInterval(minutes: number): void {
@@ -93,10 +110,11 @@ export function setRefreshInterval(minutes: number): void {
   void persistSettings();
 }
 
-export function setTheme(theme: AppTheme): void {
+export async function setTheme(theme: AppTheme): Promise<void> {
+  themeRevision += 1;
   appSettings.theme = theme;
   notifyThemeChange();
-  void persistSettings();
+  await persistSettings();
 }
 
 export function setEnabledCategories(enabledCategories: Record<CategoryId, boolean>): void {
@@ -108,9 +126,12 @@ export function loadEnabledCategories(): Record<CategoryId, boolean> {
   return { ...DEFAULT_CATEGORY_STATE, ...(appSettings.enabledCategories ?? DEFAULT_CATEGORY_STATE) };
 }
 
-export function getEffectiveTheme(theme: AppTheme = appSettings.theme): 'light' | 'dark' {
-  const systemTheme = Appearance.getColorScheme() ?? 'light';
-  return theme === 'system' ? systemTheme : theme;
+export function getEffectiveTheme(
+  theme: AppTheme = appSettings.theme,
+  systemTheme: ReturnType<typeof Appearance.getColorScheme> = Appearance.getColorScheme(),
+): 'light' | 'dark' {
+  const resolvedSystemTheme = systemTheme ?? 'light';
+  return theme === 'system' ? resolvedSystemTheme : theme;
 }
 
 export function resolveTheme(): 'light' | 'dark' {

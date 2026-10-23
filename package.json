@@ -8,7 +8,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test src/domain/*.test.ts src/config/*.test.ts src/services/*.test.ts"
+    "test": "node --experimental-strip-types --test src/domain/*.test.ts src/config/*.test.ts src/services/*.test.ts src/state/*.test.ts"
   },
   "dependencies": {
     "expo": "~52.0.0",
