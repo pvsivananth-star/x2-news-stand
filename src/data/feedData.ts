@@ -173,6 +173,46 @@ const toArticleCategory = (title: string, description: string, feedCategories: C
   return preferred ?? feedCategories[0] ?? 'top-stories';
 };
 
+const isArticleReachable = async (articleUrl: string): Promise<boolean> => {
+  if (!articleUrl) return false;
+
+  const timeoutMs = 5_000;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const headResponse = await fetch(articleUrl, {
+      method: 'HEAD',
+      signal: controller.signal,
+      redirect: 'follow',
+      headers: {
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'User-Agent': 'Mozilla/5.0',
+      },
+    });
+
+    if (headResponse.ok) {
+      return true;
+    }
+
+    const getResponse = await fetch(articleUrl, {
+      method: 'GET',
+      signal: controller.signal,
+      redirect: 'follow',
+      headers: {
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'User-Agent': 'Mozilla/5.0',
+      },
+    });
+
+    return getResponse.ok;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
 const parseRssItems = (xml: string, feedName: string, feedCategories: CategoryId[]): Article[] => {
   const matches = Array.from(xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi));
 
@@ -211,6 +251,25 @@ const parseRssItems = (xml: string, feedName: string, feedCategories: CategoryId
   return articles;
 };
 
+const pruneUnreachableArticles = async (articles: Article[]): Promise<Article[]> => {
+  const kept: Article[] = [];
+
+  for (const article of articles) {
+    const url = article.url ?? article.sourceLinks[0]?.url;
+    if (!url) {
+      kept.push(article);
+      continue;
+    }
+
+    const reachable = await isArticleReachable(url);
+    if (reachable) {
+      kept.push(article);
+    }
+  }
+
+  return kept;
+};
+
 export let FEED_ARTICLES: Article[] = [];
 
 export const refreshFeedArticles = async (): Promise<Article[]> => {
@@ -244,6 +303,11 @@ export const refreshFeedArticles = async (): Promise<Article[]> => {
 
     const sorted = Array.from(merged.values()).sort((a, b) => b.publishedAt - a.publishedAt).slice(0, 80);
     FEED_ARTICLES = sorted;
+    void pruneUnreachableArticles(sorted).then((validated) => {
+      if (validated.length !== sorted.length || validated.some((article, index) => article.id !== sorted[index]?.id)) {
+        FEED_ARTICLES = validated;
+      }
+    }).catch(() => undefined);
     return sorted;
   } catch {
     FEED_ARTICLES = [];

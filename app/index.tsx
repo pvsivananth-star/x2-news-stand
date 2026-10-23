@@ -10,7 +10,6 @@ import {
   Text,
   View,
 } from 'react-native';
-import * as Linking from 'expo-linking';
 import WebView from 'react-native-webview';
 import { CategoryPill } from '@/src/components/CategoryPill';
 import { NewsCard } from '@/src/components/NewsCard';
@@ -259,6 +258,25 @@ export default function HomeScreen() {
     }
   }, []);
 
+  const shouldAllowArticleNavigation = useCallback((requestUrl: string) => {
+   if (!selectedSourceUrl) {
+     return false;
+   }
+
+   try {
+     const allowed = new URL(selectedSourceUrl);
+     const next = new URL(requestUrl);
+
+     if (!['http:', 'https:'].includes(next.protocol)) {
+       return false;
+     }
+
+     return next.origin === allowed.origin;
+   } catch {
+     return requestUrl === selectedSourceUrl;
+   }
+  }, [selectedSourceUrl]);
+
   const renderArticle = useCallback(({ item }: { item: Article }) => {
     const translatedArticle = translatedArticleMap[item.id]
       ? {
@@ -393,13 +411,7 @@ export default function HomeScreen() {
               source={{ uri: selectedSourceUrl }}
               startInLoadingState
               style={styles.webView}
-              onShouldStartLoadWithRequest={(request) => {
-                if (request.url && request.url !== selectedSourceUrl) {
-                  void Linking.openURL(request.url);
-                  return false;
-                }
-                return true;
-              }}
+              onShouldStartLoadWithRequest={(request) => shouldAllowArticleNavigation(request.url)}
             />
           ) : null}
 
