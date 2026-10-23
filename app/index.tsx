@@ -1,5 +1,6 @@
-import { Link } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Appearance } from 'react-native';
 import {
   FlatList,
   Modal,
@@ -15,7 +16,7 @@ import { CategoryPill } from '@/src/components/CategoryPill';
 import { NewsCard } from '@/src/components/NewsCard';
 import { CATEGORY_OPTIONS, FEED_ARTICLES, refreshFeedArticles, type CategoryOption } from '@/src/data/feedData';
 import type { Article, CategoryId } from '@/src/domain/types';
-import { appSettings, hydrateSettings, resolveTheme } from '@/src/state/appSettings';
+import { appSettings, getEffectiveTheme, hydrateSettings, subscribeToThemeChanges } from '@/src/state/appSettings';
 
 const DEFAULT_CATEGORY: CategoryId = 'top-stories';
 
@@ -26,10 +27,30 @@ export default function HomeScreen() {
   const [lastRefreshedAt, setLastRefreshedAt] = useState<number>(Date.now());
   const [selectedSourceUrl, setSelectedSourceUrl] = useState<string | null>(null);
   const [settingsReady, setSettingsReady] = useState(false);
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(() => getEffectiveTheme(appSettings.theme));
   const categoryListRef = useRef<FlatList<CategoryOption> | null>(null);
 
   const enabledCategories = appSettings.enabledCategories ?? {};
-  const themeMode = resolveTheme();
+
+  const syncTheme = useCallback(() => {
+    setThemeMode(getEffectiveTheme(appSettings.theme));
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      void hydrateSettings();
+      syncTheme();
+
+      const subscription = Appearance.addChangeListener(syncTheme);
+      return () => subscription.remove();
+    }, [syncTheme]),
+  );
+
+  useEffect(() => {
+    const unsubscribe = subscribeToThemeChanges(syncTheme);
+    syncTheme();
+    return unsubscribe;
+  }, [syncTheme]);
   const palette = themeMode === 'dark'
     ? {
         background: '#020817',
@@ -210,14 +231,20 @@ export default function HomeScreen() {
 
       <Modal visible={selectedSourceUrl !== null} animationType="slide" transparent={false} onRequestClose={() => setSelectedSourceUrl(null)}>
         <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }}>
-          <View style={styles.modalHeader}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close story" onPress={() => setSelectedSourceUrl(null)} style={styles.modalCloseButton}>
-              <Text style={[styles.modalCloseText, { color: palette.title }]}>Close</Text>
-            </Pressable>
-          </View>
           {selectedSourceUrl ? (
             <WebView source={{ uri: selectedSourceUrl }} startInLoadingState style={styles.webView} />
           ) : null}
+
+          <View style={styles.modalFooter}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Close story"
+              onPress={() => setSelectedSourceUrl(null)}
+              style={[styles.modalCloseButton, { backgroundColor: palette.soft, borderColor: palette.border }]}
+            >
+              <Text style={[styles.modalCloseText, { color: palette.title }]}>✕</Text>
+            </Pressable>
+          </View>
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
@@ -324,22 +351,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
-  modalHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#334155',
+  modalFooter: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 18,
+    paddingTop: 12,
+    paddingBottom: 22,
+    alignItems: 'flex-end',
+    backgroundColor: 'rgba(15, 23, 42, 0.12)',
   },
   modalCloseButton: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-    backgroundColor: '#111827',
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
   },
   modalCloseText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '800',
+    lineHeight: 18,
   },
   webView: {
     flex: 1,

@@ -38,6 +38,19 @@ const SETTINGS_FILE = `${FileSystem.documentDirectory ?? ''}x2-news-stand-settin
 
 export const appSettings: AppSettingsState = { ...DEFAULT_SETTINGS, enabledCategories: { ...DEFAULT_CATEGORY_STATE } };
 
+const themeListeners = new Set<() => void>();
+
+export function subscribeToThemeChanges(listener: () => void): () => void {
+  themeListeners.add(listener);
+  return () => {
+    themeListeners.delete(listener);
+  };
+}
+
+function notifyThemeChange(): void {
+  themeListeners.forEach((listener) => listener());
+}
+
 async function readPersistedSettings(): Promise<AppSettingsState> {
   try {
     const raw = await FileSystem.readAsStringAsync(SETTINGS_FILE);
@@ -64,6 +77,7 @@ export async function hydrateSettings(): Promise<void> {
   appSettings.refreshIntervalMinutes = persisted.refreshIntervalMinutes;
   appSettings.theme = persisted.theme;
   appSettings.enabledCategories = { ...DEFAULT_CATEGORY_STATE, ...persisted.enabledCategories };
+  notifyThemeChange();
 }
 
 export async function persistSettings(): Promise<void> {
@@ -81,6 +95,7 @@ export function setRefreshInterval(minutes: number): void {
 
 export function setTheme(theme: AppTheme): void {
   appSettings.theme = theme;
+  notifyThemeChange();
   void persistSettings();
 }
 
@@ -93,7 +108,11 @@ export function loadEnabledCategories(): Record<CategoryId, boolean> {
   return { ...DEFAULT_CATEGORY_STATE, ...(appSettings.enabledCategories ?? DEFAULT_CATEGORY_STATE) };
 }
 
-export function resolveTheme(): 'light' | 'dark' {
+export function getEffectiveTheme(theme: AppTheme = appSettings.theme): 'light' | 'dark' {
   const systemTheme = Appearance.getColorScheme() ?? 'light';
-  return appSettings.theme === 'system' ? systemTheme : appSettings.theme;
+  return theme === 'system' ? systemTheme : theme;
+}
+
+export function resolveTheme(): 'light' | 'dark' {
+  return getEffectiveTheme();
 }

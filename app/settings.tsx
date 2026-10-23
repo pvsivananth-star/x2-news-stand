@@ -15,12 +15,13 @@ import type { CategoryId } from '@/src/domain/types';
 import {
   appSettings,
   DEFAULT_CATEGORY_STATE,
+  getEffectiveTheme,
   hydrateSettings,
   loadEnabledCategories,
-  resolveTheme,
   setEnabledCategories as persistEnabledCategories,
   setRefreshInterval,
   setTheme,
+  subscribeToThemeChanges,
   type AppTheme,
 } from '@/src/state/appSettings';
 
@@ -40,9 +41,15 @@ export default function SettingsScreen() {
       setLocalRefreshInterval(appSettings.refreshIntervalMinutes);
       setLocalTheme(appSettings.theme);
     });
+
+    const unsubscribe = subscribeToThemeChanges(() => {
+      setLocalTheme(appSettings.theme);
+    });
+
+    return unsubscribe;
   }, []);
 
-  const themeMode = resolveTheme();
+  const themeMode = getEffectiveTheme(appSettings.theme);
   const palette = themeMode === 'dark'
     ? {
         background: '#020817',
@@ -52,6 +59,7 @@ export default function SettingsScreen() {
         body: '#cbd5e1',
         muted: '#94a3b8',
         accent: '#f59e0b',
+        onAccent: '#111827',
       }
     : {
         background: '#f8fafc',
@@ -61,6 +69,7 @@ export default function SettingsScreen() {
         body: '#334155',
         muted: '#64748b',
         accent: '#f59e0b',
+        onAccent: '#111827',
       };
 
   const categoriesCount = useMemo(
@@ -96,18 +105,14 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.screen, { backgroundColor: palette.background }]}>
+    <SafeAreaView style={[styles.screen, { backgroundColor: palette.background }]}> 
       <StatusBar barStyle={themeMode === 'dark' ? 'light-content' : 'dark-content'} />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.topBar}>
-          <Text style={[styles.title, { color: palette.title }]}>Settings</Text>
-          <Link href="/" asChild>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close settings" style={[styles.closeButton, { backgroundColor: palette.soft }]}>
-              <Text style={[styles.closeText, { color: palette.title }]}>Done</Text>
-            </Pressable>
-          </Link>
-        </View>
 
+      <View style={[styles.topBar, { backgroundColor: palette.background, borderBottomColor: palette.soft }]}> 
+        <Text style={[styles.title, { color: palette.title }]}>Settings</Text>
+      </View>
+
+      <ScrollView style={styles.middleSection} contentContainerStyle={styles.content} showsVerticalScrollIndicator={true}>
         <View style={[styles.section, { backgroundColor: palette.surface, borderColor: palette.soft }]}>
           <Text style={[styles.sectionTitle, { color: palette.title }]}>Categories</Text>
           <Text style={[styles.sectionHint, { color: palette.muted }]}>{categoriesCount} active</Text>
@@ -160,7 +165,7 @@ export default function SettingsScreen() {
                 onPress={() => applyRefresh(minutes)}
                 style={[styles.optionButton, { backgroundColor: refreshInterval === minutes ? palette.accent : palette.soft }]}
               >
-                <Text style={[styles.optionText, { color: refreshInterval === minutes ? '#111827' : palette.title }]}>{minutes}m</Text>
+                <Text style={[styles.optionText, { color: refreshInterval === minutes ? palette.onAccent : palette.title }]}>{minutes}m</Text>
               </Pressable>
             ))}
           </View>
@@ -177,7 +182,7 @@ export default function SettingsScreen() {
                 onPress={() => applyTheme(option)}
                 style={[styles.optionButton, { backgroundColor: theme === option ? palette.accent : palette.soft }]}
               >
-                <Text style={[styles.optionText, { color: theme === option ? '#111827' : palette.title }]}>{option}</Text>
+                <Text style={[styles.optionText, { color: theme === option ? palette.onAccent : palette.title }]}>{option}</Text>
               </Pressable>
             ))}
           </View>
@@ -191,6 +196,20 @@ export default function SettingsScreen() {
           <Text style={[styles.valueText, { color: palette.body }]}>Publisher pages may contain ads.</Text>
         </View>
       </ScrollView>
+
+      <View style={[styles.bottomBar, { backgroundColor: palette.background, borderTopColor: palette.soft }]}> 
+        <Link href="/" asChild>
+          <Pressable accessibilityRole="button" accessibilityLabel="Cancel settings" style={[styles.actionButton, { backgroundColor: palette.soft }]}> 
+            <Text style={[styles.actionText, { color: palette.title }]}>Cancel</Text>
+          </Pressable>
+        </Link>
+
+        <Link href="/" asChild>
+          <Pressable accessibilityRole="button" accessibilityLabel="Apply settings" style={[styles.actionButton, styles.primaryActionButton, { backgroundColor: palette.soft }]}>
+            <Text style={[styles.primaryActionText, { color: palette.title }]}>Apply</Text>
+          </Pressable>
+        </Link>
+      </View>
     </SafeAreaView>
   );
 }
@@ -199,28 +218,51 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  content: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 48,
-  },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 18,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
   },
   title: {
     fontSize: 28,
     fontWeight: '800',
   },
-  closeButton: {
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+  middleSection: {
+    flex: 1,
   },
-  closeText: {
+  content: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
+  },
+  bottomBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+  },
+  actionButton: {
+    flex: 1,
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryActionButton: {
+    minWidth: 120,
+  },
+  actionText: {
     fontWeight: '700',
+  },
+  primaryActionText: {
+    fontWeight: '800',
   },
   section: {
     borderRadius: 18,
