@@ -80,7 +80,7 @@ export const DEFAULT_CATEGORY_STATE: Record<CategoryId, boolean> = {
 };
 
 export const DEFAULT_SETTINGS: AppSettingsState = {
-  refreshIntervalMinutes: 10,
+  refreshIntervalMinutes: 30,
   theme: 'system',
   enabledCategories: { ...DEFAULT_CATEGORY_STATE },
   translationLanguage: '',

@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import type { Article } from '@/src/domain/types';
 import type { ArticleDetailsState } from '@/src/hooks/useArticleDetails';
 
@@ -9,9 +9,7 @@ interface NewsCardProps {
   details?: ArticleDetailsState;
   onRetryDetails: () => void;
   onToggleExpand: () => void;
-  onToggleBookmark: () => void;
   onOpenSource: (url: string) => void;
-  onTranslate?: () => void;
   darkMode: boolean;
 }
 
@@ -19,16 +17,16 @@ function formatRelativeTime(timestamp: number): string {
   const diffMinutes = Math.max(1, Math.round((Date.now() - timestamp) / 60000));
 
   if (diffMinutes < 60) {
-    return `${diffMinutes}m ago`;
+    return `${diffMinutes}m`;
   }
 
   const diffHours = Math.round(diffMinutes / 60);
   if (diffHours < 24) {
-    return `${diffHours}h ago`;
+    return `${diffHours}h`;
   }
 
   const diffDays = Math.round(diffHours / 24);
-  return `${diffDays}d ago`;
+  return `${diffDays}d`;
 }
 
 const NewsCardComponent = ({
@@ -37,12 +35,29 @@ const NewsCardComponent = ({
   details,
   onRetryDetails,
   onToggleExpand,
-  onToggleBookmark,
   onOpenSource,
-  onTranslate,
   darkMode,
 }: NewsCardProps) => {
   const primarySource = article.sourceLinks[0]?.url || article.url || 'https://example.com';
+
+  const handleShare = () => {
+    void Share.share({
+      message: `${article.title}\n${primarySource}`,
+      url: primarySource,
+    });
+  };
+
+  const handleLongPress = () => {
+    const selectionText = [article.title, article.summary, summaryText].filter(Boolean).join('\n\n');
+    if (!selectionText) {
+      return;
+    }
+
+    void Share.share({
+      message: selectionText,
+      title: article.title,
+    });
+  };
 
   const colors = darkMode
     ? {
@@ -71,7 +86,12 @@ const NewsCardComponent = ({
   const descriptionText = article.summary?.trim() ?? '';
 
   return (
-    <Pressable onPress={onToggleExpand} accessibilityRole="button" accessibilityLabel={`Toggle article details for ${article.title}`}>
+    <Pressable
+      onPress={onToggleExpand}
+      onLongPress={handleLongPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Toggle article details for ${article.title}`}
+    >
       <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]} accessible>
         <Text style={[styles.titleText, { color: colors.text }]}>{article.title}</Text>
 
@@ -129,29 +149,15 @@ const NewsCardComponent = ({
           <View style={styles.metaBlock}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={article.bookmarked ? 'Remove bookmark' : 'Add bookmark'}
+              accessibilityLabel="Share article"
               onPress={(event) => {
                 event.stopPropagation();
-                onToggleBookmark();
+                handleShare();
               }}
-              style={[styles.iconButton, { backgroundColor: colors.button }]}
+              style={[styles.shareButton, { backgroundColor: colors.button }]}
             >
-              <Text style={[styles.iconText, { color: darkMode ? '#fbbf24' : '#d97706' }]}>{article.bookmarked ? '★' : '☆'}</Text>
+              <Text style={[styles.shareIcon, { color: colors.accent }]}>↗</Text>
             </Pressable>
-
-            {onTranslate ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Translate article"
-                onPress={(event) => {
-                  event.stopPropagation();
-                  onTranslate();
-                }}
-                style={[styles.translateButton, { backgroundColor: colors.button }]}
-              >
-                <Text style={[styles.translateText, { color: colors.accent }]}>Translate</Text>
-              </Pressable>
-            ) : null}
           </View>
 
           <View style={styles.metaBlockRight}>
@@ -181,15 +187,16 @@ export const NewsCard = memo(NewsCardComponent);
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: 1,
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 14,
-    shadowColor: '#0b1120',
-    shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 16,
-    elevation: 4,
+    borderWidth: 0,
+    borderRadius: 0,
+    paddingVertical: 12,
+    paddingHorizontal: 0,
+    marginBottom: 10,
+    shadowColor: 'transparent',
+    shadowOpacity: 0,
+    shadowOffset: { width: 0, height: 0 },
+    shadowRadius: 0,
+    elevation: 0,
   },
   metaBlock: {
     flexDirection: 'row',
@@ -221,29 +228,17 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
     textTransform: 'uppercase',
   },
-  translateButton: {
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
+  shareButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  translateText: {
-    fontSize: 10,
+  shareIcon: {
+    fontSize: 12,
     fontWeight: '700',
-    letterSpacing: 0.3,
-    textTransform: 'uppercase',
-  },
-  iconButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconText: {
-    fontSize: 18,
-    fontWeight: '700',
+    lineHeight: 12,
   },
   titleText: {
     fontSize: 22,

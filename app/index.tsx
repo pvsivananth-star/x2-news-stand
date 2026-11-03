@@ -1,9 +1,10 @@
-import { Link, useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
   Modal,
   Pressable,
+  RefreshControl,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -17,7 +18,7 @@ import { CATEGORY_OPTIONS, FEED_ARTICLES, refreshFeedArticles, type CategoryOpti
 import type { Article, CategoryId } from '@/src/domain/types';
 import { useArticleDetails } from '@/src/hooks/useArticleDetails';
 import { useAppTheme } from '@/src/hooks/useAppTheme';
-import { appSettings, hydrateSettings } from '@/src/state/appSettings';
+import { appSettings, DEFAULT_CATEGORY_STATE, hydrateSettings } from '@/src/state/appSettings';
 import { translateText } from '@/src/services/translation';
 
 const DEFAULT_CATEGORY: CategoryId = 'top-stories';
@@ -32,10 +33,17 @@ export default function HomeScreen() {
   const [settingsReady, setSettingsReady] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const categoryListRef = useRef<FlatList<CategoryOption> | null>(null);
+  const feedListRef = useRef<FlatList<Article> | null>(null);
+  const refreshTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { detailsByArticleId, loadArticleDetails } = useArticleDetails();
   const { themeMode } = useAppTheme();
+  const router = useRouter();
 
-  const enabledCategories = appSettings.enabledCategories ?? {};
+  const enabledCategories = appSettings.enabledCategories ?? DEFAULT_CATEGORY_STATE;
+  const visibleCategories = useMemo(
+    () => CATEGORY_OPTIONS.filter((option) => enabledCategories[option.id] !== false),
+    [enabledCategories],
+  );
   const translationLanguage = appSettings.translationLanguage ?? '';
   const [translatedArticleMap, setTranslatedArticleMap] = useState<Record<string, { title: string; summary: string }>>({});
   const [translatedDetailMap, setTranslatedDetailMap] = useState<Record<string, string>>({});
@@ -81,20 +89,35 @@ export default function HomeScreen() {
         border: '#dfe7f5',
       };
 
-  const refreshFeed = useCallback(async () => {
+  const refreshFeed = useCallback(async (options?: { force?: boolean; silent?: boolean }) => {
     if (isRefreshing) {
       return;
     }
 
-    setIsRefreshing(true);
+    if (options?.force || !options?.silent) {
+      setIsRefreshing(true);
+    }
+
     try {
       const refreshed = await refreshFeedArticles();
       setItems(refreshed.length > 0 ? refreshed : FEED_ARTICLES);
       setLastRefreshedAt(Date.now());
     } finally {
-      setIsRefreshing(false);
+      if (options?.force || !options?.silent) {
+        setIsRefreshing(false);
+      }
     }
   }, [isRefreshing]);
+
+  const restartRefreshTimer = useCallback(() => {
+    if (refreshTimerRef.current) {
+      clearInterval(refreshTimerRef.current);
+    }
+
+    refreshTimerRef.current = setInterval(() => {
+      void refreshFeed({ silent: true });
+    }, Math.max(1, appSettings.refreshIntervalMinutes) * 60 * 1000);
+  }, [appSettings.refreshIntervalMinutes, refreshFeed]);
 
   const translateTextSnapshot = useCallback(async (value: string): Promise<string> => {
     const cleanText = value?.trim() ?? '';
@@ -207,17 +230,29 @@ export default function HomeScreen() {
     void hydrateSettings().then(() => {
       setSettingsReady(true);
     });
-    void refreshFeed();
+    void refreshFeed({ silent: true });
   }, []);
 
   useEffect(() => {
-    const intervalMs = appSettings.refreshIntervalMinutes * 60 * 1000;
-    const timer = setInterval(() => {
-      void refreshFeed();
-    }, intervalMs);
+    if (visibleCategories.length === 0) {
+      setActiveCategory(DEFAULT_CATEGORY);
+      return;
+    }
 
-    return () => clearInterval(timer);
-  }, [appSettings.refreshIntervalMinutes]);
+    const activeIsVisible = visibleCategories.some((option) => option.id === activeCategory);
+    if (!activeIsVisible) {
+      setActiveCategory(visibleCategories[0].id);
+    }
+  }, [activeCategory, visibleCategories]);
+
+  useEffect(() => {
+    restartRefreshTimer();
+    return () => {
+      if (refreshTimerRef.current) {
+        clearInterval(refreshTimerRef.current);
+      }
+    };
+  }, [restartRefreshTimer]);
 
   const filteredItems = useMemo(
     () => items.filter((item) => {
@@ -236,30 +271,37 @@ export default function HomeScreen() {
   );
 
   const toggleExpanded = useCallback((id: string) => {
-    const expanding = !expandedIds[id];
+    const index = filteredItems.findIndex((item) => item.id === id);
     setExpandedIds((current) => ({
       ...current,
       [id]: !current[id],
     }));
-    if (expanding) {
+
+    if (index >= 0) {
+      requestAnimationFrame(() => {
+        feedListRef.current?.scrollToIndex({
+          index,
+          animated: true,
+          viewPosition: 0,
+        });
+      });
+    }
+
+    if (!expandedIds[id]) {
       const article = items.find((item) => item.id === id);
       void loadArticleDetails(id, article?.sourceLinks[0]?.url ?? article?.url);
     }
-  }, [expandedIds, items, loadArticleDetails]);
-
-  const toggleBookmark = useCallback((id: string) => {
-    setItems((current) =>
-      current.map((item) =>
-        item.id === id ? { ...item, bookmarked: !item.bookmarked } : item,
-      ),
-    );
-  }, []);
+  }, [expandedIds, filteredItems, items, loadArticleDetails]);
 
   const refreshStatus = new Date(lastRefreshedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+  const scrollToTop = useCallback(() => {
+    feedListRef.current?.scrollToOffset({ offset: 0, animated: true });
+  }, []);
+
   const handleCategoryPress = useCallback((categoryId: CategoryId) => {
     setActiveCategory(categoryId);
-    const index = CATEGORY_OPTIONS.findIndex((item) => item.id === categoryId);
+    const index = visibleCategories.findIndex((item) => item.id === categoryId);
     if (index >= 0) {
       requestAnimationFrame(() => {
         categoryListRef.current?.scrollToIndex({
@@ -269,7 +311,7 @@ export default function HomeScreen() {
         });
       });
     }
-  }, []);
+  }, [visibleCategories]);
 
   const shouldAllowArticleNavigation = useCallback((requestUrl: string) => {
    if (!selectedSourceUrl) {
@@ -318,19 +360,14 @@ export default function HomeScreen() {
         details={translatedDetails}
         onRetryDetails={() => void loadArticleDetails(item.id, item.sourceLinks[0]?.url ?? item.url)}
         onToggleExpand={() => toggleExpanded(item.id)}
-        onToggleBookmark={() => toggleBookmark(item.id)}
         onOpenSource={(url) => {
           setSelectedSourceUrl(url);
           setSelectedArticleId(item.id);
         }}
-        onTranslate={async () => {
-          const translated = await translateArticle(item);
-          setItems((current) => current.map((entry) => entry.id === item.id ? translated : entry));
-        }}
         darkMode={themeMode === 'dark'}
       />
     );
-  }, [detailsByArticleId, expandedIds, loadArticleDetails, themeMode, toggleExpanded, toggleBookmark, translateArticle, translatedArticleMap, translatedDetailMap]);
+  }, [detailsByArticleId, expandedIds, loadArticleDetails, themeMode, toggleExpanded, translateArticle, translatedArticleMap, translatedDetailMap]);
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: palette.background }]}>
@@ -338,17 +375,23 @@ export default function HomeScreen() {
 
       <View style={styles.header}>
         <View style={styles.titleWrap}>
-          <Link href="/settings" asChild>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Open settings"
-              style={[styles.iconButton, { backgroundColor: palette.soft, borderColor: palette.soft }]}
-            >
-              <Text style={[styles.iconText, { color: palette.title }]}>☰</Text>
-            </Pressable>
-          </Link>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Open settings"
+            onPress={() => router.push('/settings')}
+            style={[styles.iconButton, { backgroundColor: palette.soft, borderColor: palette.soft }]}
+          >
+            <Text style={[styles.iconText, { color: palette.title }]}>☰</Text>
+          </Pressable>
 
-          <Text style={[styles.title, { color: palette.title }]} numberOfLines={1} ellipsizeMode="tail">X2 News</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Scroll to the top of the news feed"
+            onPress={scrollToTop}
+            style={styles.titlePressable}
+          >
+            <Text style={[styles.title, { color: palette.title }]} numberOfLines={1} ellipsizeMode="tail">X2 News</Text>
+          </Pressable>
           {translationLanguage ? (
             <Text style={[styles.translatedBadge, { color: palette.muted }]}>{'Translated'}</Text>
           ) : null}
@@ -376,6 +419,7 @@ export default function HomeScreen() {
 
       <View style={styles.contentArea}>
         <FlatList
+          ref={feedListRef}
           data={filteredItems}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.feedList}
@@ -383,12 +427,36 @@ export default function HomeScreen() {
           snapToInterval={220}
           snapToAlignment="start"
           decelerationRate="fast"
+          getItemLayout={(_, index) => ({ length: 220, offset: index * 220, index })}
+          onScrollToIndexFailed={({ index }) => {
+            feedListRef.current?.scrollToOffset({
+              offset: index * 220,
+              animated: false,
+            });
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={() => {
+                void refreshFeed({ force: true });
+                restartRefreshTimer();
+              }}
+              tintColor={palette.accent}
+              colors={[palette.accent]}
+            />
+          }
           renderItem={renderArticle}
           ListEmptyComponent={
-            <View style={[styles.emptyState, { backgroundColor: palette.surface, borderColor: palette.border }]}> 
-              <Text style={[styles.emptyTitle, { color: palette.title }]}>No stories in this view</Text>
-              <Text style={[styles.emptyBody, { color: palette.body }]}>Try another category or turn a feed back on in Settings.</Text>
-            </View>
+            !settingsReady ? (
+              <View style={[styles.emptyState, { backgroundColor: palette.surface, borderColor: palette.border }]}> 
+                <Text style={[styles.emptyTitle, { color: palette.title }]}>Loading news</Text>
+              </View>
+            ) : (
+              <View style={[styles.emptyState, { backgroundColor: palette.surface, borderColor: palette.border }]}> 
+                <Text style={[styles.emptyTitle, { color: palette.title }]}>No stories in this view</Text>
+                <Text style={[styles.emptyBody, { color: palette.body }]}>Try another category or turn a feed back on in Settings.</Text>
+              </View>
+            )
           }
         />
       </View>
@@ -396,7 +464,7 @@ export default function HomeScreen() {
       <View style={styles.categoryBar}>
         <FlatList
           ref={categoryListRef}
-          data={CATEGORY_OPTIONS}
+          data={visibleCategories}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoryList}
@@ -479,6 +547,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1.1,
     textTransform: 'uppercase',
+  },
+  titlePressable: {
+    flexShrink: 1,
+    minWidth: 0,
   },
   title: {
     fontSize: 20,
