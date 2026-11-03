@@ -63,6 +63,21 @@
       "notes": ""
     },
     {
+      "id": "google-news-tamil-in",
+      "name": "Google News Tamil - India",
+      "language": "ta",
+      "type": "rss",
+      "url": "https://news.google.com/rss?hl=ta&gl=IN&ceid=IN:ta",
+      "categories": [
+        "top-stories",
+        "national",
+        "world"
+      ],
+      "status": "tracker-listed",
+      "enabled": true,
+      "notes": "Google News aggregate feed in Tamil for India. Good for top stories; the list can vary and blends multiple sources."
+    },
+    {
       "id": "gizbot-tamil",
       "name": "Gizbot Tamil",
       "language": "ta",
