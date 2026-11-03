@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Modal,
@@ -40,6 +40,7 @@ export default function SettingsScreen() {
   const [disclaimerVisible, setDisclaimerVisible] = useState(false);
   const { theme, themeMode } = useAppTheme();
   const [themeSaveError, setThemeSaveError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     void hydrateSettings().then(() => {
@@ -287,17 +288,23 @@ export default function SettingsScreen() {
       </ScrollView>
 
       <View style={[styles.bottomBar, { backgroundColor: palette.background, borderTopColor: palette.soft }]}> 
-        <Link href="/" asChild>
-          <Pressable accessibilityRole="button" accessibilityLabel="Cancel settings" style={[styles.actionButton, { backgroundColor: palette.soft }]}> 
-            <Text style={[styles.actionText, { color: palette.title }]}>Cancel</Text>
-          </Pressable>
-        </Link>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Cancel settings"
+          onPress={() => router.push('/')}
+          style={[styles.actionButton, { backgroundColor: palette.soft }]}
+        >
+          <Text style={[styles.actionText, { color: palette.title }]}>Cancel</Text>
+        </Pressable>
 
-        <Link href="/" asChild>
-          <Pressable accessibilityRole="button" accessibilityLabel="Apply settings" style={[styles.actionButton, styles.primaryActionButton, { backgroundColor: palette.soft }]}>
-            <Text style={[styles.primaryActionText, { color: palette.title }]}>Apply</Text>
-          </Pressable>
-        </Link>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Apply settings"
+          onPress={() => router.push('/')}
+          style={[styles.actionButton, styles.primaryActionButton, { backgroundColor: palette.soft }]}
+        >
+          <Text style={[styles.primaryActionText, { color: palette.title }]}>Apply</Text>
+        </Pressable>
       </View>
 
       <Modal visible={disclaimerVisible} transparent animationType="fade" onRequestClose={() => setDisclaimerVisible(false)}>
